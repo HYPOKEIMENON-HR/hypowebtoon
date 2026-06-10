@@ -875,11 +875,8 @@
 
 <!-- FILTER TABS -->
 <div class="filter-section">
-  <div class="filter-tabs">
+  <div class="filter-tabs" id="filter-tabs">
     <button class="tab-btn active" data-type="all" onclick="filterCards('all', this)">전체 <span class="tab-count">0</span></button>
-    <button class="tab-btn" data-type="life" onclick="filterCards('life', this)">생활수칙 <span class="tab-count">0</span></button>
-    <button class="tab-btn" data-type="work" onclick="filterCards('work', this)">업무수칙 <span class="tab-count">0</span></button>
-    <button class="tab-btn" data-type="knowledge" onclick="filterCards('knowledge', this)">지식 <span class="tab-count">0</span></button>
   </div>
 </div>
 
@@ -909,13 +906,23 @@
 <script>
 const webtoons = [];
 
-const bgMap = { life:'bg-life', work:'bg-work', knowledge:'bg-knowledge' };
-const badgeMap = { life:'badge-life', work:'badge-work', knowledge:'badge-knowledge' };
-const colorMap = {
-  life: { badge:'#1A6FD4', badgeBg:'rgba(49,130,246,0.12)', thumb:'linear-gradient(160deg,#EBF3FF,#C5DDF9)', emoji:'🏢' },
-  work: { badge:'#1A2B4A', badgeBg:'rgba(26,43,74,0.10)', thumb:'linear-gradient(160deg,#EBF3FE,#B8D9F7)', emoji:'💼' },
-  knowledge: { badge:'#0D7A60', badgeBg:'rgba(16,159,125,0.10)', thumb:'linear-gradient(160deg,#E8F5FF,#CCE7FF)', emoji:'📚' },
-};
+// bgMap, badgeMap은 getColor()로 대체됨
+const colorPalette = [
+  { badge:'#1A6FD4', badgeBg:'rgba(49,130,246,0.12)', thumb:'linear-gradient(160deg,#EBF3FF,#C5DDF9)', emoji:'📖' },
+  { badge:'#1A2B4A', badgeBg:'rgba(26,43,74,0.10)', thumb:'linear-gradient(160deg,#EBF3FE,#B8D9F7)', emoji:'💼' },
+  { badge:'#0D7A60', badgeBg:'rgba(16,159,125,0.10)', thumb:'linear-gradient(160deg,#E8F5FF,#CCE7FF)', emoji:'📚' },
+  { badge:'#7C3AED', badgeBg:'rgba(124,58,237,0.10)', thumb:'linear-gradient(160deg,#F3EEFF,#DDD6FE)', emoji:'🌟' },
+  { badge:'#B45309', badgeBg:'rgba(180,83,9,0.10)', thumb:'linear-gradient(160deg,#FFF7ED,#FED7AA)', emoji:'🏆' },
+  { badge:'#0369A1', badgeBg:'rgba(3,105,161,0.10)', thumb:'linear-gradient(160deg,#E0F2FE,#BAE6FD)', emoji:'💡' },
+];
+const colorMap = {};
+function getColor(series) {
+  if (!colorMap[series]) {
+    const idx = Object.keys(colorMap).length % colorPalette.length;
+    colorMap[series] = colorPalette[idx];
+  }
+  return colorMap[series];
+}
 
 function renderCards(list) {
   const grid = document.getElementById('webtoon-grid');
@@ -928,19 +935,19 @@ function renderCards(list) {
     return;
   }
   grid.innerHTML = list.map(w => {
-    const c = colorMap[w.series];
+    const c = getColor(w.series);
     return `
     <div class="webtoon-card" onclick="openModal(${w.id})">
       <div class="card-thumb">
         ${w.thumb
           ? `<img src="${w.thumb}" alt="${w.title}" style="width:100%;height:100%;object-fit:cover;display:block;">`
-          : `<div class="card-thumb-placeholder ${bgMap[w.series]}">
+          : `<div class="card-thumb-placeholder" style="background:${c.thumb}">
           <div style="font-size:36px;margin-bottom:4px;">${c.emoji}</div>
           <div class="ep-num">${w.ep}</div>
           <div class="ep-title-mini" style="color:var(--gray-800);">${w.tag}</div>
         </div>`
         }
-        <span class="card-badge ${badgeMap[w.series]}">${w.seriesLabel}</span>
+        <span class="card-badge" style="background:${c.badgeBg};color:${c.badge};">${w.seriesLabel}</span>
         ${w.isNew ? '<span class="badge-new">NEW</span>' : ''}
       </div>
       <div class="card-body">
@@ -968,18 +975,22 @@ function filterCards(type, btn) {
 }
 
 function updateTabCounts() {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    const type = btn.getAttribute('data-type');
-    if (!type) return;
-    const count = type === 'all' ? webtoons.length : webtoons.filter(w => w.series === type).length;
-    const countEl = btn.querySelector('.tab-count');
-    if (countEl) countEl.textContent = count;
-  });
+  // 시리즈 탭 동적 렌더링
+  const tabs = document.getElementById('filter-tabs');
+  const series = [...new Set(webtoons.map(w => w.series))];
+  const activeType = document.querySelector('.tab-btn.active')?.getAttribute('data-type') || 'all';
+
+  tabs.innerHTML = `<button class="tab-btn ${activeType==='all'?'active':''}" data-type="all" onclick="filterCards('all', this)">전체 <span class="tab-count">${webtoons.length}</span></button>` +
+    series.map(s => {
+      const label = webtoons.find(w => w.series === s)?.seriesLabel || s;
+      const count = webtoons.filter(w => w.series === s).length;
+      return `<button class="tab-btn ${activeType===s?'active':''}" data-type="${s}" onclick="filterCards('${s}', this)">${label} <span class="tab-count">${count}</span></button>`;
+    }).join('');
 }
 
 function openModal(id) {
   const w = webtoons.find(x => x.id === Number(id));
-  const c = colorMap[w.series];
+  const c = getColor(w.series);
   document.getElementById('modal-content').innerHTML = `
     ${w.thumb
       ? `<div class="modal-thumb" style="padding:0;overflow:hidden;border-radius:var(--radius-md);">
@@ -1069,11 +1080,8 @@ updateTabCounts();
         <div style="font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:12px;">새 에피소드 추가</div>
         <div class="ep-field">
           <label>시리즈</label>
-          <select id="new-series" style="width:100%;font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;background:white;">
-            <option value="life">생활수칙</option>
-            <option value="work">업무수칙</option>
-            <option value="knowledge">지식</option>
-          </select>
+          <input type="text" id="new-series" placeholder="예: life, work, knowledge, welfare ..." style="width:100%;font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;background:white;margin-bottom:6px;"/>
+          <input type="text" id="new-series-label" placeholder="시리즈 표시명 (예: 생활수칙, 복지편 ...)" style="width:100%;font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;background:white;"/>
         </div>
         <div class="ep-field">
           <label>에피소드 번호 (예: EP.01)</label>
@@ -1255,8 +1263,8 @@ function showAddForm() {
 }
 
 function addEpisode() {
-  const seriesMap = { life:'생활수칙', work:'업무수칙', knowledge:'지식' };
-  const series = document.getElementById('new-series').value;
+  const series = document.getElementById('new-series').value.trim();
+  const seriesLabelInput = document.getElementById('new-series-label').value.trim();
   const ep = document.getElementById('new-ep').value.trim();
   const title = document.getElementById('new-title').value.trim();
   const desc = document.getElementById('new-desc').value.trim();
@@ -1264,8 +1272,8 @@ function addEpisode() {
   const tag = document.getElementById('new-tag').value.trim();
   const pages = document.getElementById('new-pages').value.split('\n').map(s=>s.trim()).filter(Boolean);
 
-  if (!ep || !title) {
-    alert('에피소드 번호와 제목은 필수예요!');
+  if (!series || !ep || !title) {
+    alert('시리즈, 에피소드 번호, 제목은 필수예요!');
     return;
   }
 
@@ -1273,7 +1281,7 @@ function addEpisode() {
   webtoons.push({
     id: newId,
     series,
-    seriesLabel: seriesMap[series],
+    seriesLabel: seriesLabelInput || series,
     ep,
     title,
     tag: tag || series,
@@ -1284,7 +1292,7 @@ function addEpisode() {
     pages,
   });
 
-  ['new-ep','new-title','new-desc','new-thumb','new-tag','new-pages'].forEach(id => {
+  ['new-series','new-series-label','new-ep','new-title','new-desc','new-thumb','new-tag','new-pages'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('add-form').style.display = 'none';
