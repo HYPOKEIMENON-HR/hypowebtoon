@@ -978,7 +978,7 @@ function updateTabCounts() {
 }
 
 function openModal(id) {
-  const w = webtoons.find(x => x.id === id);
+  const w = webtoons.find(x => x.id === Number(id));
   const c = colorMap[w.series];
   document.getElementById('modal-content').innerHTML = `
     ${w.thumb
@@ -1215,7 +1215,7 @@ function saveChanges() {
 
 
 function openViewer(id) {
-  const w = webtoons.find(x => x.id === id);
+  const w = webtoons.find(x => x.id === Number(id));
   document.getElementById('viewer-series-label').textContent = w.seriesLabel + ' · ' + w.ep;
   document.getElementById('viewer-ep-title').textContent = w.title;
 
