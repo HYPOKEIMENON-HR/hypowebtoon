@@ -1025,7 +1025,7 @@ function openModal(id) {
     <div class="modal-info-row">
       ${w.keywords.map(k => `<span class="modal-tag">#${k}</span>`).join('')}
     </div>
-    <button class="modal-btn" onclick="openViewer(w.id); document.getElementById('modal-overlay').classList.remove('open');">웹툰 보기 →</button>
+    <button class="modal-btn" onclick="openViewer(${w.id}); document.getElementById('modal-overlay').classList.remove('open');">웹툰 보기 →</button>
   `;
   document.getElementById('modal-overlay').classList.add('open');
 }
