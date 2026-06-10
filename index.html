@@ -97,7 +97,7 @@
   .hero {
     background: var(--navy) url("https://res.cloudinary.com/dq3uhnrdc/image/upload/v1781069169/%EC%9B%B9%ED%88%B0%EC%82%AC%EC%9D%B4%ED%8A%B8_%EC%BB%A4%EB%B2%84_zyspdo.png") center/cover no-repeat;
     padding: 80px 40px 72px;
-    text-align: center;
+    text-align: left;
     position: relative;
     overflow: hidden;
   }
@@ -150,7 +150,7 @@
     font-size: 16px;
     color: rgba(255,255,255,0.6);
     max-width: 440px;
-    margin: 0 auto 36px;
+    margin: 0 0 0;
     position: relative;
     z-index: 1;
   }
@@ -871,31 +871,15 @@
   </div>
   <h1>업무가 쉬워지는<br><em>히포의 교육 웹툰</em></h1>
   <p class="hero-sub">알아야 할 것들을 히포와 함께<br>재미있게 배워보세요.</p>
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <span class="hero-stat-num">12</span>
-      <div class="hero-stat-label">총 에피소드</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <span class="hero-stat-num">3</span>
-      <div class="hero-stat-label">시리즈</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <span class="hero-stat-num">순차</span>
-      <div class="hero-stat-label">업데이트 중</div>
-    </div>
-  </div>
 </section>
 
 <!-- FILTER TABS -->
 <div class="filter-section">
   <div class="filter-tabs">
-    <button class="tab-btn active" onclick="filterCards('all', this)">전체 <span class="tab-count">12</span></button>
-    <button class="tab-btn" onclick="filterCards('life', this)">생활수칙 <span class="tab-count">4</span></button>
-    <button class="tab-btn" onclick="filterCards('work', this)">업무수칙 <span class="tab-count">4</span></button>
-    <button class="tab-btn" onclick="filterCards('knowledge', this)">지식 <span class="tab-count">4</span></button>
+    <button class="tab-btn active" data-type="all" onclick="filterCards('all', this)">전체 <span class="tab-count">0</span></button>
+    <button class="tab-btn" data-type="life" onclick="filterCards('life', this)">생활수칙 <span class="tab-count">0</span></button>
+    <button class="tab-btn" data-type="work" onclick="filterCards('work', this)">업무수칙 <span class="tab-count">0</span></button>
+    <button class="tab-btn" data-type="knowledge" onclick="filterCards('knowledge', this)">지식 <span class="tab-count">0</span></button>
   </div>
 </div>
 
@@ -923,36 +907,7 @@
 </footer>
 
 <script>
-const webtoons = [
-  { id:1, series:'life', seriesLabel:'생활수칙', ep:'EP.01', title:'출근부터 퇴근까지, 하루의 기본 규칙', tag:'기본수칙', isNew:false,
-    desc:'히포 회사의 하루 루틴을 담은 첫 번째 에피소드. 출퇴근 시간, 자리 정돈, 공용 공간 에티켓까지 알아봐요.', keywords:['시간 관리','공용 공간','에티켓'], pages:[] },
-  { id:2, series:'life', seriesLabel:'생활수칙', ep:'EP.02', title:'회의실을 예약하는 올바른 방법', tag:'공간 이용', isNew:false,
-    desc:'회의실 예약부터 사용 후 정리까지. 모두가 불편하지 않도록 지켜야 할 규칙을 알아봐요.', keywords:['회의실','예약 시스템','공간 공유'], pages:[] },
-  { id:3, series:'life', seriesLabel:'생활수칙', ep:'EP.03', title:'메신저 예절, 이렇게 쓰세요', tag:'커뮤니케이션', isNew:false,
-    desc:'팀즈·슬랙 등 사내 메신저를 올바르게 쓰는 법. 호칭, 응답 속도, 이모지 사용 기준까지.', keywords:['메신저','호칭','응답 속도'], pages:[] },
-  { id:4, series:'life', seriesLabel:'생활수칙', ep:'EP.04', title:'연차와 반차, 이렇게 신청해요', tag:'근태 관리', isNew:true,
-    desc:'연차 신청 방법과 반차 규정, 급하게 쉬어야 할 때 어떻게 하는지까지 히포와 함께 알아봐요.', keywords:['연차','반차','근태'], pages:[] },
-  { id:5, series:'work', seriesLabel:'업무수칙', ep:'EP.01', title:'일 잘하는 사람들의 업무 기본기', tag:'업무 기본', isNew:false,
-    thumb:'',
-    desc:'보고, 소통, 기록, 기본 — 일 잘하는 사람들이 공통으로 갖춘 네 가지 업무 습관을 히포와 함께 알아봐요.', keywords:['보고서','두괄식','수치화'], pages:[] },
-  { id:6, series:'work', seriesLabel:'업무수칙', ep:'EP.02', title:'함께 일하는 법 — 협업의 기본기', tag:'협업', isNew:false,
-    thumb:'',
-    desc:'회의, 공유, 피드백, 일정조율 — 혼자가 아닌 팀으로 일할 때 꼭 알아야 할 협업 습관을 히포와 함께 배워봐요.', keywords:['회의','피드백','협업'], pages:[] },
-  { id:7, series:'work', seriesLabel:'업무수칙', ep:'EP.03', title:'마감을 지키는 사람들의 공통점', tag:'시간 관리', isNew:false,
-    desc:'마감을 못 지키는 이유와 지키는 방법. 우선순위 설정과 중간 보고의 중요성을 알아봐요.', keywords:['마감','우선순위','중간 보고'], pages:[] },
-  { id:8, series:'work', seriesLabel:'업무수칙', ep:'EP.04', title:'피드백 주고받기, 불편하지 않게', tag:'협업', isNew:true,
-    desc:'피드백을 줄 때와 받을 때 각각의 태도와 방법. 감정 소모 없이 성장하는 피드백 문화를 만들어봐요.', keywords:['피드백','협업','성장'], pages:[] },
-  { id:9, series:'knowledge', seriesLabel:'지식', ep:'EP.01', title:'내 월급은 어떻게 만들어지나요?', tag:'임금구성', isNew:false,
-    thumb:'',
-    desc:'기본급, 수당, 공제 항목까지. 급여명세서를 처음 받았을 때 이해하기 어려웠던 그것, 히포가 알려드려요.', keywords:['기본급','수당','공제'], pages:[] },
-  { id:10, series:'knowledge', seriesLabel:'지식', ep:'EP.02', title:'근로계약서, 뭘 확인해야 할까?', tag:'근로계약', isNew:false,
-    thumb:'',
-    desc:'근로계약서에 반드시 들어가야 하는 항목들과 서명 전 체크해야 할 핵심 포인트를 알아봐요.', keywords:['근로계약서','필수 항목','서명'], pages:[] },
-  { id:11, series:'knowledge', seriesLabel:'지식', ep:'EP.03', title:'퇴직금은 언제, 얼마나 받나요?', tag:'퇴직금', isNew:true,
-    desc:'퇴직금 계산 방식과 지급 기준. 1년 이상 근무했을 때 내가 받을 수 있는 금액을 알아봐요.', keywords:['퇴직금','계산','지급 기준'], pages:[] },
-  { id:12, series:'knowledge', seriesLabel:'지식', ep:'EP.04', title:'4대 보험, 왜 내는 건가요?', tag:'4대 보험', isNew:true,
-    desc:'국민연금, 건강보험, 고용보험, 산재보험. 각각의 역할과 내가 내는 금액의 의미를 히포가 설명해드려요.', keywords:['4대 보험','국민연금','건강보험'], pages:[] },
-];
+const webtoons = [];
 
 const bgMap = { life:'bg-life', work:'bg-work', knowledge:'bg-knowledge' };
 const badgeMap = { life:'badge-life', work:'badge-work', knowledge:'badge-knowledge' };
@@ -964,6 +919,14 @@ const colorMap = {
 
 function renderCards(list) {
   const grid = document.getElementById('webtoon-grid');
+  if (list.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--gray-400);">
+      <div style="font-size:40px;margin-bottom:12px;">📭</div>
+      <div style="font-size:15px;font-weight:600;color:var(--gray-600);margin-bottom:6px;">아직 등록된 웹툰이 없어요</div>
+      <div style="font-size:13px;">관리자 패널에서 에피소드를 추가해주세요</div>
+    </div>`;
+    return;
+  }
   grid.innerHTML = list.map(w => {
     const c = colorMap[w.series];
     return `
@@ -1000,6 +963,18 @@ function filterCards(type, btn) {
   const labels = { all:'전체 웹툰', life:'생활수칙', work:'업무수칙', knowledge:'지식' };
   document.getElementById('section-title').textContent = labels[type];
   document.getElementById('section-count').textContent = filtered.length + '편';
+  // 탭 카운트 업데이트
+  updateTabCounts();
+}
+
+function updateTabCounts() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    const type = btn.getAttribute('data-type');
+    if (!type) return;
+    const count = type === 'all' ? webtoons.length : webtoons.filter(w => w.series === type).length;
+    const countEl = btn.querySelector('.tab-count');
+    if (countEl) countEl.textContent = count;
+  });
 }
 
 function openModal(id) {
@@ -1032,6 +1007,7 @@ function closeModal(e) {
 }
 
 renderCards(webtoons);
+updateTabCounts();
 </script>
 
 
@@ -1085,6 +1061,50 @@ renderCards(webtoons);
     <div class="admin-content" id="admin-content">
       <div class="admin-tabs" id="admin-tabs"></div>
       <div id="admin-ep-list"></div>
+      <button onclick="showAddForm()" style="width:100%;padding:12px;background:none;border:2px dashed var(--gray-200);border-radius:var(--radius-md);font-family:inherit;font-size:14px;font-weight:600;color:var(--blue);cursor:pointer;margin-bottom:12px;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background='none'">
+        + 새 에피소드 추가
+      </button>
+
+      <div id="add-form" style="display:none;background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:var(--radius-md);padding:16px;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:12px;">새 에피소드 추가</div>
+        <div class="ep-field">
+          <label>시리즈</label>
+          <select id="new-series" style="width:100%;font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;background:white;">
+            <option value="life">생활수칙</option>
+            <option value="work">업무수칙</option>
+            <option value="knowledge">지식</option>
+          </select>
+        </div>
+        <div class="ep-field">
+          <label>에피소드 번호 (예: EP.01)</label>
+          <input type="text" id="new-ep" placeholder="EP.01"/>
+        </div>
+        <div class="ep-field">
+          <label>제목</label>
+          <input type="text" id="new-title" placeholder="에피소드 제목"/>
+        </div>
+        <div class="ep-field">
+          <label>설명</label>
+          <textarea id="new-desc" rows="2" placeholder="에피소드 설명"></textarea>
+        </div>
+        <div class="ep-field">
+          <label>썸네일 URL (Cloudinary)</label>
+          <input type="text" id="new-thumb" placeholder="https://res.cloudinary.com/..."/>
+        </div>
+        <div class="ep-field">
+          <label>태그</label>
+          <input type="text" id="new-tag" placeholder="예: 기본수칙"/>
+        </div>
+        <div class="ep-field">
+          <label>웹툰 컷 URL (한 줄에 하나씩)</label>
+          <textarea id="new-pages" rows="3" placeholder="https://res.cloudinary.com/.../cut1.jpg"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button onclick="addEpisode()" style="flex:1;padding:10px;background:var(--blue);color:white;border:none;border-radius:var(--radius-sm);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">추가하기</button>
+          <button onclick="document.getElementById('add-form').style.display='none'" style="padding:10px 16px;background:none;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;cursor:pointer;">취소</button>
+        </div>
+      </div>
+
       <div class="admin-actions">
         <button class="btn-save" onclick="saveChanges()">✓ 변경사항 저장</button>
         <button class="btn-export" onclick="exportJSON()">↓ JSON 내보내기</button>
