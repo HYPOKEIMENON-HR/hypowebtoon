@@ -844,6 +844,12 @@
   .viewer-end-btn:hover { background: rgba(255,255,255,0.18); color: white; }
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://crqpwbadocwjhkvpiqft.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNycXB3YmFkb2N3amhrdnBpcWZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNjA4NzcsImV4cCI6MjA5NjYzNjg3N30.ngYICAprW6_lmId-7C_6D5D00UAFLnmuRUm8rwyrW00';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
 </head>
 <body>
 
@@ -1017,8 +1023,35 @@ function closeModal(e) {
   }
 }
 
-renderCards(webtoons);
-updateTabCounts();
+// Supabase에서 불러오기
+async function loadFromSupabase() {
+  try {
+    const { data, error } = await supabase
+      .from('webtoons')
+      .select('*')
+      .order('id', { ascending: true });
+    if (error) throw error;
+    webtoons.length = 0;
+    data.forEach(row => webtoons.push({
+      id: row.id,
+      series: row.series,
+      seriesLabel: row.series_label,
+      ep: row.ep,
+      title: row.title,
+      tag: row.tag,
+      isNew: row.is_new,
+      thumb: row.thumb || '',
+      desc: row.description || '',
+      keywords: row.keywords || [],
+      pages: row.pages || [],
+    }));
+  } catch(e) {
+    console.error('Supabase 로드 오류:', e);
+  }
+  renderCards(webtoons);
+  updateTabCounts();
+}
+loadFromSupabase();
 </script>
 
 
@@ -1080,8 +1113,13 @@ updateTabCounts();
         <div style="font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:12px;">새 에피소드 추가</div>
         <div class="ep-field">
           <label>시리즈</label>
-          <input type="text" id="new-series" placeholder="예: life, work, knowledge, welfare ..." style="width:100%;font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;background:white;margin-bottom:6px;"/>
-          <input type="text" id="new-series-label" placeholder="시리즈 표시명 (예: 생활수칙, 복지편 ...)" style="width:100%;font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;background:white;"/>
+          <select id="new-series" onchange="handleSeriesSelect(this)" style="width:100%;font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;background:white;margin-bottom:6px;">
+            <option value="">-- 시리즈 선택 --</option>
+          </select>
+          <div id="new-series-custom-wrap" style="display:none;gap:6px;margin-bottom:6px;">
+            <input type="text" id="new-series-key" placeholder="시리즈 키 (영문, 예: welfare)" style="width:100%;font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;background:white;margin-bottom:6px;"/>
+            <input type="text" id="new-series-label" placeholder="시리즈 표시명 (예: 복지편)" style="width:100%;font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;background:white;"/>
+          </div>
         </div>
         <div class="ep-field">
           <label>에피소드 번호 (예: EP.01)</label>
@@ -1200,7 +1238,7 @@ function renderAdminTabs(tab) {
   }).join('');
 }
 
-function saveChanges() {
+async function saveChanges() {
   webtoons.forEach(w => {
     const titleEl = document.getElementById('title-' + w.id);
     const descEl = document.getElementById('desc-' + w.id);
@@ -1215,6 +1253,25 @@ function saveChanges() {
   });
   renderCards(webtoons.filter(w => currentTab === 'all' || w.series === currentTab));
   renderAdminTabs(currentTab);
+  updateTabCounts();
+
+  // Supabase 저장
+  try {
+    const rows = webtoons.map(w => ({
+      id: w.id,
+      series: w.series,
+      series_label: w.seriesLabel,
+      ep: w.ep,
+      title: w.title,
+      tag: w.tag,
+      is_new: w.isNew,
+      thumb: w.thumb && w.thumb.startsWith('data:') ? '' : (w.thumb||''),
+      description: w.desc || '',
+      keywords: w.keywords || [],
+      pages: w.pages || [],
+    }));
+    await supabase.from('webtoons').upsert(rows);
+  } catch(e) { console.error('저장 오류:', e); }
 
   const toast = document.getElementById('save-toast');
   toast.classList.add('show');
@@ -1257,14 +1314,38 @@ function closeViewer() {
 }
 
 
-function showAddForm() {
-  const form = document.getElementById('add-form');
-  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+
+function handleSeriesSelect(sel) {
+  const wrap = document.getElementById('new-series-custom-wrap');
+  wrap.style.display = sel.value === '__new__' ? 'block' : 'none';
 }
 
-function addEpisode() {
-  const series = document.getElementById('new-series').value.trim();
-  const seriesLabelInput = document.getElementById('new-series-label').value.trim();
+function refreshSeriesSelect() {
+  const sel = document.getElementById('new-series');
+  if (!sel) return;
+  const existing = [...new Set(webtoons.map(w => w.series))];
+  sel.innerHTML = '<option value="">-- 시리즈 선택 --</option>' +
+    existing.map(s => {
+      const label = webtoons.find(w=>w.series===s)?.seriesLabel || s;
+      return `<option value="${s}">${label}</option>`;
+    }).join('') +
+    '<option value="__new__">+ 새 시리즈 추가</option>';
+}
+
+function showAddForm() {
+  const form = document.getElementById('add-form');
+  if (form.style.display === 'none' || form.style.display === '') {
+    refreshSeriesSelect();
+    form.style.display = 'block';
+  } else {
+    form.style.display = 'none';
+  }
+}
+
+async function addEpisode() {
+  const seriesSelect = document.getElementById('new-series').value;
+  const series = seriesSelect === '__new__' ? document.getElementById('new-series-key').value.trim() : seriesSelect;
+  const seriesLabelInput = seriesSelect === '__new__' ? document.getElementById('new-series-label').value.trim() : (webtoons.find(w=>w.series===series)?.seriesLabel || series);
   const ep = document.getElementById('new-ep').value.trim();
   const title = document.getElementById('new-title').value.trim();
   const desc = document.getElementById('new-desc').value.trim();
@@ -1292,7 +1373,7 @@ function addEpisode() {
     pages,
   });
 
-  ['new-series','new-series-label','new-ep','new-title','new-desc','new-thumb','new-tag','new-pages'].forEach(id => {
+  ['new-series-key','new-series-label','new-ep','new-title','new-desc','new-thumb','new-tag','new-pages'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('add-form').style.display = 'none';
@@ -1300,6 +1381,27 @@ function addEpisode() {
   renderAdminTabs(currentTab);
   renderCards(webtoons);
   updateTabCounts();
+
+  // Supabase insert
+  try {
+    const { data: inserted, error } = await supabase.from('webtoons').insert([{
+      series,
+      series_label: seriesLabelInput || series,
+      ep,
+      title,
+      tag: tag || series,
+      is_new: true,
+      thumb: thumb || '',
+      description: desc || '',
+      keywords: [],
+      pages,
+    }]).select();
+    if (error) throw error;
+    // DB에서 받은 id로 교체
+    if (inserted && inserted[0]) {
+      webtoons[webtoons.length-1].id = inserted[0].id;
+    }
+  } catch(e) { console.error('추가 오류:', e); }
 
   const toast = document.getElementById('save-toast');
   toast.classList.add('show');
