@@ -500,14 +500,57 @@
   .modal-btn:hover { background: #1A6FD4; }
 
   @media (max-width: 640px) {
-    nav { padding: 0 20px; }
-    .hero { padding: 60px 20px 56px; }
-    .hero h1 { font-size: 30px; }
-    .filter-section { padding: 24px 20px 0; }
-    .grid-section { padding: 20px 20px 48px; }
-    .webtoon-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    nav { padding: 0 16px; height: 52px; }
+    .nav-logo-text { font-size: 13px; }
+    .hero { padding: 44px 20px 40px; }
+    .hero h1 { font-size: 26px; letter-spacing: -0.8px; }
+    .hero-sub { font-size: 14px; }
+    .hero-eyebrow { font-size: 11px; }
+    .filter-section { padding: 16px 16px 0; overflow-x: auto; }
+    .filter-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+    .filter-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn { font-size: 13px; padding: 8px 12px; white-space: nowrap; }
+    .grid-section { padding: 16px 16px 48px; }
+    .section-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .sort-bar { width: 100%; justify-content: space-between; }
+    .webtoon-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .card-title { font-size: 13px; }
+    .card-body { padding: 10px 12px 12px; }
+    .modal { padding: 20px; border-radius: var(--radius-lg); }
+    .modal-title { font-size: 17px; }
+    .admin-panel { padding: 20px; border-radius: var(--radius-lg); }
+    .viewer-header { padding: 10px 14px; }
+    .viewer-ep-title { font-size: 13px; }
+    .viewer-nav { flex-direction: column; gap: 8px; }
+    .viewer-nav-btn { width: 100%; justify-content: center; font-size: 12px; }
     footer { padding: 20px; flex-direction: column; gap: 8px; text-align: center; }
   }
+
+  @media (max-width: 380px) {
+    .webtoon-grid { grid-template-columns: repeat(1, 1fr); }
+    .hero h1 { font-size: 22px; }
+  }
+
+
+  .sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sort-select {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-600);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 5px 10px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .sort-select:focus { border-color: var(--blue); }
 
   /* ADMIN */
   .admin-btn {
@@ -843,38 +886,6 @@
   }
   .viewer-end-btn:hover { background: rgba(255,255,255,0.18); color: white; }
 
-  .viewer-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 14px;
-  }
-  .viewer-nav-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 11px 20px;
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.8);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 100px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-  }
-  .viewer-nav-btn:hover { background: rgba(255,255,255,0.18); color: white; }
-  .viewer-nav-btn:disabled { opacity: 0.25; cursor: default; }
-  .viewer-nav-btn svg { width: 16px; height: 16px; }
-  .viewer-nav-btn.next {
-    background: rgba(49,130,246,0.25);
-    border-color: rgba(49,130,246,0.4);
-    color: #7FB8FF;
-  }
-  .viewer-nav-btn.next:hover { background: rgba(49,130,246,0.4); color: white; }
-
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -922,7 +933,15 @@
 <div class="grid-section">
   <div class="section-header">
     <span class="section-title" id="section-title">전체 웹툰</span>
-    <span class="section-count" id="section-count">12편</span>
+    <div class="sort-bar">
+      <span class="section-count" id="section-count">12편</span>
+      <select class="sort-select" id="sort-select" onchange="applySortAndRender()">
+        <option value="upload">업로드순</option>
+        <option value="ep">EP 번호순</option>
+        <option value="ep_desc">EP 번호 역순</option>
+        <option value="title">제목순</option>
+      </select>
+    </div>
   </div>
   <div class="webtoon-grid" id="webtoon-grid"></div>
 </div>
@@ -1003,13 +1022,13 @@ function renderCards(list) {
 function filterCards(type, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  const filtered = type === 'all' ? webtoons : webtoons.filter(w => w.series === type);
-  renderCards(filtered);
-  const labels = { all:'전체 웹툰', life:'생활수칙', work:'업무수칙', knowledge:'지식' };
-  document.getElementById('section-title').textContent = labels[type];
-  document.getElementById('section-count').textContent = filtered.length + '편';
-  // 탭 카운트 업데이트
+  currentFilterType = type;
+  const labels = { all:'전체 웹툰' };
+  const seriesSet = [...new Set(webtoons.map(w => w.series))];
+  seriesSet.forEach(s => { labels[s] = webtoons.find(w=>w.series===s)?.seriesLabel || s; });
+  document.getElementById('section-title').textContent = labels[type] || type;
   updateTabCounts();
+  applySortAndRender();
 }
 
 function updateTabCounts() {
@@ -1055,6 +1074,85 @@ function closeModal(e) {
   }
 }
 
+
+// ── 정렬 ──
+let currentFilterType = 'all';
+
+function applySortAndRender() {
+  const sortVal = document.getElementById('sort-select')?.value || 'upload';
+  const filtered = currentFilterType === 'all' ? [...webtoons] : webtoons.filter(w => w.series === currentFilterType);
+
+  filtered.sort((a, b) => {
+    if (sortVal === 'upload') return a.id - b.id;
+    if (sortVal === 'ep') return a.ep.localeCompare(b.ep, undefined, {numeric:true});
+    if (sortVal === 'ep_desc') return b.ep.localeCompare(a.ep, undefined, {numeric:true});
+    if (sortVal === 'title') return a.title.localeCompare(b.title, 'ko');
+    return 0;
+  });
+
+  renderCards(filtered);
+  document.getElementById('section-count').textContent = filtered.length + '편';
+}
+
+// ── 삭제 ──
+async function deleteEp(id) {
+  const w = webtoons.find(x => x.id === Number(id));
+  if (!w) return;
+  if (!confirm(`"${w.title}" 에피소드를 삭제할까요?`)) return;
+
+  try {
+    const { error } = await sbClient.from('webtoons').delete().eq('id', id);
+    if (error) throw error;
+    const idx = webtoons.findIndex(x => x.id === Number(id));
+    if (idx > -1) webtoons.splice(idx, 1);
+    renderAdminTabs(currentTab);
+    applySortAndRender();
+    updateTabCounts();
+    const toast = document.getElementById('save-toast');
+    toast.textContent = '🗑 삭제되었습니다';
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ 저장되었습니다'; }, 2000);
+  } catch(e) {
+    console.error('삭제 오류:', e);
+    alert('삭제 중 오류가 발생했어요.');
+  }
+}
+
+// ── 순서 변경 ──
+async function moveEp(id, dir) {
+  const filtered = currentTab === 'all' ? [...webtoons] : webtoons.filter(w => w.series === currentTab);
+  filtered.sort((a,b) => a.id - b.id);
+  const idx = filtered.findIndex(x => x.id === Number(id));
+  const swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx >= filtered.length) return;
+
+  const a = filtered[idx];
+  const b = filtered[swapIdx];
+
+  // id swap via temp
+  const tempId = -1;
+  try {
+    await sbClient.from('webtoons').update({ id: tempId }).eq('id', a.id);
+    await sbClient.from('webtoons').update({ id: a.id }).eq('id', b.id);
+    await sbClient.from('webtoons').update({ id: b.id }).eq('id', tempId);
+
+    // 로컬에도 반영
+    const ai = webtoons.findIndex(x => x.id === a.id);
+    const bi = webtoons.findIndex(x => x.id === b.id);
+    [webtoons[ai].id, webtoons[bi].id] = [b.id, a.id];
+
+    renderAdminTabs(currentTab);
+    applySortAndRender();
+
+    const toast = document.getElementById('save-toast');
+    toast.textContent = '↕ 순서가 변경되었습니다';
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ 저장되었습니다'; }, 2000);
+  } catch(e) {
+    console.error('순서 변경 오류:', e);
+  }
+}
+
 // Supabase에서 불러오기
 async function loadFromSupabase() {
   try {
@@ -1080,7 +1178,7 @@ async function loadFromSupabase() {
   } catch(e) {
     console.error('Supabase 로드 오류:', e);
   }
-  renderCards(webtoons);
+  applySortAndRender();
   updateTabCounts();
 }
 loadFromSupabase();
@@ -1230,21 +1328,29 @@ let currentTab = 'all';
 function renderAdminTabs(tab) {
   currentTab = tab;
   const tabs = document.getElementById('admin-tabs');
-  tabs.innerHTML = ['all','life','work','knowledge'].map(t =>
-    `<button class="admin-tab ${tab===t?'active':''}" onclick="renderAdminTabs('${t}')">${seriesInfo[t].label}</button>`
-  ).join('');
+  const seriesKeys = [...new Set(webtoons.map(w => w.series))];
+  tabs.innerHTML = [
+    `<button class="admin-tab ${tab==='all'?'active':''}" onclick="renderAdminTabs('all')">전체</button>`,
+    ...seriesKeys.map(s => {
+      const label = webtoons.find(w=>w.series===s)?.seriesLabel || s;
+      return `<button class="admin-tab ${tab===s?'active':''}" onclick="renderAdminTabs('${s}')">${label}</button>`;
+    })
+  ].join('');
 
   const list = document.getElementById('admin-ep-list');
   const filtered = tab === 'all' ? webtoons : webtoons.filter(w => w.series === tab);
-  const si = seriesInfo;
-
   list.innerHTML = filtered.map(w => {
-    const s = si[w.series];
+    const s = { bg: getColor(w.series).badgeBg, color: getColor(w.series).badge };
     return `
     <div class="ep-edit-card">
       <div class="ep-edit-card-header">
         <span class="ep-edit-label">${w.seriesLabel} ${w.ep}</span>
-        <span class="ep-edit-badge" style="background:${s.bg};color:${s.color};">${w.tag}</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="ep-edit-badge" style="background:${s.bg};color:${s.color};">${w.tag}</span>
+          <button onclick="moveEp(${w.id}, -1)" title="위로" style="background:none;border:1px solid var(--gray-200);border-radius:4px;width:26px;height:26px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;">↑</button>
+          <button onclick="moveEp(${w.id}, 1)" title="아래로" style="background:none;border:1px solid var(--gray-200);border-radius:4px;width:26px;height:26px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;">↓</button>
+          <button onclick="deleteEp(${w.id})" title="삭제" style="background:none;border:1px solid #FECACA;border-radius:4px;width:26px;height:26px;cursor:pointer;font-size:12px;color:#E53E3E;display:flex;align-items:center;justify-content:center;">✕</button>
+        </div>
       </div>
       <div class="ep-field">
         <label>제목</label>
@@ -1328,27 +1434,11 @@ function openViewer(id) {
         <span>관리자 패널에서 컷 이미지를 추가해주세요</span>
       </div>`;
   } else {
-    // 같은 시리즈 내 이전/다음 찾기
-    const sameSeries = webtoons.filter(x => x.series === w.series).sort((a,b) => a.id - b.id);
-    const curIdx = sameSeries.findIndex(x => x.id === w.id);
-    const prevEp = curIdx > 0 ? sameSeries[curIdx - 1] : null;
-    const nextEp = curIdx < sameSeries.length - 1 ? sameSeries[curIdx + 1] : null;
-
     body.innerHTML = w.pages.map((url, i) =>
       `<div class="viewer-cut"><img src="${url}" alt="${w.title} ${i+1}컷" loading="lazy"/></div>`
     ).join('') + `
     <div class="viewer-end">
       <p>— 완 —</p>
-      <div class="viewer-nav">
-        <button class="viewer-nav-btn" onclick="openViewer(${prevEp ? prevEp.id : ''})" ${!prevEp ? 'disabled' : ''}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-          ${prevEp ? prevEp.ep + ' ' + prevEp.title : '이전 편 없음'}
-        </button>
-        <button class="viewer-nav-btn next" onclick="openViewer(${nextEp ? nextEp.id : ''})" ${!nextEp ? 'disabled' : ''}>
-          ${nextEp ? nextEp.ep + ' ' + nextEp.title : '다음 편 없음'}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
       <button class="viewer-end-btn" onclick="closeViewer()">목록으로 돌아가기</button>
     </div>`;
   }
