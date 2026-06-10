@@ -843,6 +843,38 @@
   }
   .viewer-end-btn:hover { background: rgba(255,255,255,0.18); color: white; }
 
+  .viewer-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .viewer-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 20px;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .viewer-nav-btn:hover { background: rgba(255,255,255,0.18); color: white; }
+  .viewer-nav-btn:disabled { opacity: 0.25; cursor: default; }
+  .viewer-nav-btn svg { width: 16px; height: 16px; }
+  .viewer-nav-btn.next {
+    background: rgba(49,130,246,0.25);
+    border-color: rgba(49,130,246,0.4);
+    color: #7FB8FF;
+  }
+  .viewer-nav-btn.next:hover { background: rgba(49,130,246,0.4); color: white; }
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -1296,11 +1328,27 @@ function openViewer(id) {
         <span>관리자 패널에서 컷 이미지를 추가해주세요</span>
       </div>`;
   } else {
+    // 같은 시리즈 내 이전/다음 찾기
+    const sameSeries = webtoons.filter(x => x.series === w.series).sort((a,b) => a.id - b.id);
+    const curIdx = sameSeries.findIndex(x => x.id === w.id);
+    const prevEp = curIdx > 0 ? sameSeries[curIdx - 1] : null;
+    const nextEp = curIdx < sameSeries.length - 1 ? sameSeries[curIdx + 1] : null;
+
     body.innerHTML = w.pages.map((url, i) =>
       `<div class="viewer-cut"><img src="${url}" alt="${w.title} ${i+1}컷" loading="lazy"/></div>`
     ).join('') + `
     <div class="viewer-end">
       <p>— 완 —</p>
+      <div class="viewer-nav">
+        <button class="viewer-nav-btn" onclick="openViewer(${prevEp ? prevEp.id : ''})" ${!prevEp ? 'disabled' : ''}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          ${prevEp ? prevEp.ep + ' ' + prevEp.title : '이전 편 없음'}
+        </button>
+        <button class="viewer-nav-btn next" onclick="openViewer(${nextEp ? nextEp.id : ''})" ${!nextEp ? 'disabled' : ''}>
+          ${nextEp ? nextEp.ep + ' ' + nextEp.title : '다음 편 없음'}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
       <button class="viewer-end-btn" onclick="closeViewer()">목록으로 돌아가기</button>
     </div>`;
   }
