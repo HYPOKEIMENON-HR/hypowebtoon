@@ -848,7 +848,7 @@
 <script>
   const SUPABASE_URL = 'https://crqpwbadocwjhkvpiqft.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNycXB3YmFkb2N3amhrdnBpcWZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNjA4NzcsImV4cCI6MjA5NjYzNjg3N30.ngYICAprW6_lmId-7C_6D5D00UAFLnmuRUm8rwyrW00';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 </script>
 </head>
 <body>
@@ -1026,7 +1026,7 @@ function closeModal(e) {
 // Supabase에서 불러오기
 async function loadFromSupabase() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await sbClient
       .from('webtoons')
       .select('*')
       .order('id', { ascending: true });
@@ -1270,7 +1270,7 @@ async function saveChanges() {
       keywords: w.keywords || [],
       pages: w.pages || [],
     }));
-    await supabase.from('webtoons').upsert(rows);
+    await sbClient.from('webtoons').upsert(rows);
   } catch(e) { console.error('저장 오류:', e); }
 
   const toast = document.getElementById('save-toast');
@@ -1384,7 +1384,7 @@ async function addEpisode() {
 
   // Supabase insert
   try {
-    const { data: inserted, error } = await supabase.from('webtoons').insert([{
+    const { data: inserted, error } = await sbClient.from('webtoons').insert([{
       series,
       series_label: seriesLabelInput || series,
       ep,
