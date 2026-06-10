@@ -1248,6 +1248,56 @@ function closeViewer() {
   document.getElementById('viewer-overlay').classList.remove('open');
 }
 
+
+function showAddForm() {
+  const form = document.getElementById('add-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function addEpisode() {
+  const seriesMap = { life:'생활수칙', work:'업무수칙', knowledge:'지식' };
+  const series = document.getElementById('new-series').value;
+  const ep = document.getElementById('new-ep').value.trim();
+  const title = document.getElementById('new-title').value.trim();
+  const desc = document.getElementById('new-desc').value.trim();
+  const thumb = document.getElementById('new-thumb').value.trim();
+  const tag = document.getElementById('new-tag').value.trim();
+  const pages = document.getElementById('new-pages').value.split('\n').map(s=>s.trim()).filter(Boolean);
+
+  if (!ep || !title) {
+    alert('에피소드 번호와 제목은 필수예요!');
+    return;
+  }
+
+  const newId = webtoons.length > 0 ? Math.max(...webtoons.map(w=>w.id)) + 1 : 1;
+  webtoons.push({
+    id: newId,
+    series,
+    seriesLabel: seriesMap[series],
+    ep,
+    title,
+    tag: tag || series,
+    isNew: true,
+    thumb: thumb || '',
+    desc: desc || '',
+    keywords: [],
+    pages,
+  });
+
+  ['new-ep','new-title','new-desc','new-thumb','new-tag','new-pages'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('add-form').style.display = 'none';
+
+  renderAdminTabs(currentTab);
+  renderCards(webtoons);
+  updateTabCounts();
+
+  const toast = document.getElementById('save-toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
 function exportJSON() {
   const data = webtoons.map(w => ({
     id: w.id,
