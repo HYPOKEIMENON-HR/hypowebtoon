@@ -1067,7 +1067,22 @@
 <script>
   const SUPABASE_URL = 'https://crqpwbadocwjhkvpiqft.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNycXB3YmFkb2N3amhrdnBpcWZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNjA4NzcsImV4cCI6MjA5NjYzNjg3N30.ngYICAprW6_lmId-7C_6D5D00UAFLnmuRUm8rwyrW00';
-  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let sbClient;
+  function initSupabase() {
+    if (window.supabase && window.supabase.createClient) {
+      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      return true;
+    }
+    return false;
+  }
+  // 즉시 시도, 실패하면 DOM 로드 후 재시도
+  if (!initSupabase()) {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!initSupabase()) {
+        console.error('Supabase SDK 로드 실패. 페이지를 새로고침해주세요.');
+      }
+    });
+  }
 </script>
 </head>
 <body>
