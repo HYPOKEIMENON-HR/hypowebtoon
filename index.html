@@ -552,66 +552,6 @@
   }
   .sort-select:focus { border-color: var(--blue); }
 
-
-  .series-overlay {
-    display: none; position: fixed; inset: 0;
-    background: var(--gray-50); z-index: 250; overflow-y: auto;
-  }
-  .series-overlay.open { display: block; }
-  .series-header {
-    position: sticky; top: 0;
-    background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--gray-200);
-    padding: 0 24px; height: 52px;
-    display: flex; align-items: center; justify-content: space-between; z-index: 10;
-  }
-  .series-back {
-    display: flex; align-items: center; gap: 6px;
-    background: none; border: none; font-family: inherit;
-    font-size: 14px; font-weight: 500; color: var(--gray-600);
-    cursor: pointer; padding: 6px 8px; border-radius: var(--radius-sm);
-    transition: background 0.15s, color 0.15s; width: 80px;
-  }
-  .series-back:hover { background: var(--gray-100); color: var(--gray-900); }
-  .series-header-title { font-size: 15px; font-weight: 700; color: var(--gray-900); }
-  .series-body { max-width: 800px; margin: 0 auto; padding: 24px 24px 80px; }
-  .series-top {
-    display: flex; gap: 20px; align-items: flex-start;
-    background: var(--white); border-radius: var(--radius-lg);
-    padding: 20px; margin-bottom: 20px; border: 1px solid var(--gray-200);
-  }
-  .series-top-thumb {
-    width: 100px; min-width: 100px; aspect-ratio: 3/4;
-    border-radius: var(--radius-md); overflow: hidden; background: var(--gray-100);
-  }
-  .series-top-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .series-top-thumb-placeholder {
-    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 32px;
-  }
-  .series-top-info { flex: 1; }
-  .series-top-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px; margin-bottom: 8px; }
-  .series-top-title { font-size: 20px; font-weight: 700; color: var(--gray-900); letter-spacing: -0.4px; margin-bottom: 6px; }
-  .series-top-desc { font-size: 13px; color: var(--gray-600); line-height: 1.7; margin-bottom: 10px; word-break: keep-all; }
-  .series-ep-count-badge { font-size: 12px; font-weight: 600; color: var(--blue); background: var(--blue-light); padding: 4px 12px; border-radius: 100px; }
-  .ep-list-wrap { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); overflow: hidden; }
-  .ep-list-header { padding: 14px 20px; border-bottom: 1px solid var(--gray-100); font-size: 13px; font-weight: 600; color: var(--gray-900); }
-  .ep-item {
-    display: flex; align-items: center; gap: 14px;
-    padding: 14px 20px; border-bottom: 1px solid var(--gray-100);
-    cursor: pointer; transition: background 0.12s;
-  }
-  .ep-item:last-child { border-bottom: none; }
-  .ep-item:hover { background: var(--gray-50); }
-  .ep-item-thumb { width: 80px; min-width: 80px; aspect-ratio: 3/4; border-radius: var(--radius-sm); overflow: hidden; background: var(--gray-100); }
-  .ep-item-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .ep-item-thumb-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-  .ep-item-info { flex: 1; min-width: 0; }
-  .ep-item-ep { font-size: 11px; color: var(--gray-400); font-weight: 500; margin-bottom: 4px; }
-  .ep-item-title { font-size: 14px; font-weight: 600; color: var(--gray-900); line-height: 1.4; word-break: keep-all; }
-  .ep-item-tag { font-size: 11px; color: var(--gray-400); }
-  .ep-item-arrow { color: var(--gray-300); font-size: 18px; }
-  .ep-item-new { font-size: 10px; font-weight: 700; color: #FF4D4D; background: rgba(255,77,77,0.1); padding: 2px 6px; border-radius: 100px; margin-left: 6px; }
-
   /* ADMIN */
   .admin-btn {
     position: fixed;
@@ -945,6 +885,42 @@
     transition: background 0.15s;
   }
   .viewer-end-btn:hover { background: rgba(255,255,255,0.18); color: white; }
+  .viewer-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .viewer-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .viewer-nav-btn:hover { background: rgba(255,255,255,0.18); color: white; }
+  .viewer-nav-btn:disabled { opacity: 0.25; cursor: default; }
+  .viewer-nav-btn.next {
+    background: rgba(49,130,246,0.25);
+    border-color: rgba(49,130,246,0.4);
+    color: #7FB8FF;
+  }
+  .viewer-nav-btn.next:hover { background: rgba(49,130,246,0.4); color: white; }
+
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1054,7 +1030,7 @@ function renderCards(list) {
   grid.innerHTML = list.map(w => {
     const c = getColor(w.series);
     return `
-    <div class="webtoon-card" onclick="openSeriesDetail('${w.series}')">
+    <div class="webtoon-card" onclick="openModal(${w.id})">
       <div class="card-thumb">
         ${w.thumb
           ? `<img src="${w.thumb}" alt="${w.title}" style="width:100%;height:100%;object-fit:cover;display:block;">`
@@ -1137,7 +1113,7 @@ function closeModal(e) {
 
 // ── 정렬 ──
 let currentFilterType = 'all';
-let currentViewerSeries = ''; // 뷰어에서 돌아갈 시리즈
+let currentViewerSeries = '';
 
 function applySortAndRender() {
   const sortVal = document.getElementById('sort-select')?.value || 'upload';
@@ -1262,19 +1238,6 @@ loadFromSupabase();
     <div class="viewer-spacer"></div>
   </div>
   <div class="viewer-body" id="viewer-body"></div>
-</div>
-
-<!-- SERIES DETAIL PAGE -->
-<div class="series-overlay" id="series-overlay">
-  <div class="series-header">
-    <button class="series-back" onclick="closeSeriesDetail()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      목록으로
-    </button>
-    <span class="series-header-title" id="series-header-title"></span>
-    <div style="width:80px;"></div>
-  </div>
-  <div class="series-body" id="series-body"></div>
 </div>
 
 <!-- ADMIN BUTTON -->
@@ -1500,7 +1463,8 @@ function openViewer(id) {
   document.getElementById('viewer-ep-title').textContent = w.title;
 
   // 같은 시리즈 이전/다음
-  const sameSeries = webtoons.filter(x => x.series === w.series)
+  const sameSeries = webtoons
+    .filter(x => x.series === w.series)
     .sort((a, b) => a.ep.localeCompare(b.ep, undefined, {numeric: true}));
   const curIdx = sameSeries.findIndex(x => x.id === w.id);
   const prevEp = curIdx > 0 ? sameSeries[curIdx - 1] : null;
@@ -1525,12 +1489,12 @@ function openViewer(id) {
       <p>— 완 —</p>
       <div class="viewer-nav">
         <button class="viewer-nav-btn" onclick="openViewer(${prevEp ? prevEp.id : ''})" ${!prevEp ? 'disabled' : ''}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           ${prevEp ? prevEp.ep + ' ' + prevEp.title : '이전 편 없음'}
         </button>
         <button class="viewer-nav-btn next" onclick="openViewer(${nextEp ? nextEp.id : ''})" ${!nextEp ? 'disabled' : ''}>
           ${nextEp ? nextEp.ep + ' ' + nextEp.title : '다음 편 없음'}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
       </div>
       <button class="viewer-end-btn" onclick="backToSeries()">목록으로 돌아가기</button>
@@ -1539,56 +1503,6 @@ function openViewer(id) {
 
   document.getElementById('viewer-overlay').classList.add('open');
   document.getElementById('viewer-overlay').scrollTop = 0;
-}
-
-
-function openSeriesDetail(series) {
-  const eps = webtoons.filter(w => w.series === series)
-    .sort((a, b) => a.ep.localeCompare(b.ep, undefined, {numeric: true}));
-  if (eps.length === 0) return;
-  const c = getColor(series);
-  const seriesLabel = eps[0].seriesLabel;
-  const coverUrl = (typeof seriesCovers !== 'undefined' && seriesCovers[series]) || eps.find(e => e.thumb)?.thumb || '';
-  document.getElementById('series-header-title').textContent = seriesLabel;
-  const thumbHtml = coverUrl
-    ? `<img src="${coverUrl}" alt="${seriesLabel}">`
-    : `<div class="series-top-thumb-placeholder" style="background:${c.thumb};">${c.emoji}</div>`;
-  const epItemsHtml = eps.map(ep => {
-    const epThumb = ep.thumb
-      ? `<img src="${ep.thumb}" alt="${ep.title}">`
-      : `<div class="ep-item-thumb-placeholder" style="background:${getColor(ep.series).thumb};">${getColor(ep.series).emoji}</div>`;
-    return `
-    <div class="ep-item" onclick="openViewer(${ep.id});">
-      <div class="ep-item-thumb">${epThumb}</div>
-      <div class="ep-item-info">
-        <div class="ep-item-ep">${ep.ep}</div>
-        <div class="ep-item-title">${ep.title}${ep.isNew ? '<span class="ep-item-new">NEW</span>' : ''}</div>
-        <div class="ep-item-tag">${ep.tag}</div>
-      </div>
-      <span class="ep-item-arrow">›</span>
-    </div>`;
-  }).join('');
-  document.getElementById('series-body').innerHTML = `
-    <div class="series-top">
-      <div class="series-top-thumb">${thumbHtml}</div>
-      <div class="series-top-info">
-        <span class="series-top-badge" style="background:${c.badgeBg};color:${c.badge};">${seriesLabel}</span>
-        <div class="series-top-title">${seriesLabel}</div>
-        <div class="series-top-desc">${eps[0].desc || ''}</div>
-        <span class="series-ep-count-badge">총 ${eps.length}화</span>
-      </div>
-    </div>
-    <div class="ep-list-wrap">
-      <div class="ep-list-header"><span>에피소드 목록</span></div>
-      ${epItemsHtml}
-    </div>
-  `;
-  document.getElementById('series-overlay').classList.add('open');
-  document.getElementById('series-overlay').scrollTop = 0;
-}
-
-function closeSeriesDetail() {
-  document.getElementById('series-overlay').classList.remove('open');
 }
 
 function closeViewer() {
