@@ -1646,11 +1646,16 @@ async function saveSeriesCover(series) {
   const url = document.getElementById('cover-' + series)?.value.trim();
   if (!url) return;
   seriesCovers[series] = url;
+
+  // Supabase + localStorage 둘 다 저장
+  localStorage.setItem('hypo_series_covers', JSON.stringify(seriesCovers));
   try {
-    await sbClient.from('series_covers').upsert([{ series, cover_url: url }]);
+    const { error } = await sbClient.from('series_covers').upsert([{ series, cover_url: url }]);
+    if (error) console.error('series_covers 저장 오류:', error);
   } catch(e) {
-    localStorage.setItem('hypo_series_covers', JSON.stringify(seriesCovers));
+    console.error('series_covers 저장 실패:', e);
   }
+
   renderSeriesCoverSection();
   renderCards(webtoons);
   const toast = document.getElementById('save-toast');
@@ -1660,14 +1665,19 @@ async function saveSeriesCover(series) {
 }
 
 async function loadSeriesCovers() {
+  // localStorage 먼저
+  try {
+    const saved = localStorage.getItem('hypo_series_covers');
+    if (saved) Object.assign(seriesCovers, JSON.parse(saved));
+  } catch(e) {}
+  // Supabase로 덮어쓰기
   try {
     const { data, error } = await sbClient.from('series_covers').select('*');
-    if (!error && data) data.forEach(row => { seriesCovers[row.series] = row.cover_url; });
+    if (!error && data && data.length > 0) {
+      data.forEach(row => { seriesCovers[row.series] = row.cover_url; });
+    }
   } catch(e) {
-    try {
-      const saved = localStorage.getItem('hypo_series_covers');
-      if (saved) Object.assign(seriesCovers, JSON.parse(saved));
-    } catch(e2) {}
+    console.warn('series_covers Supabase 로드 실패, localStorage 사용');
   }
 }
 
