@@ -1099,6 +1099,7 @@
 
 <script>
 const webtoons = [];
+const seriesCovers = {}; // { series키: 대표이미지URL }
 
 // bgMap, badgeMap은 getColor()로 대체됨
 const colorPalette = [
@@ -1139,7 +1140,7 @@ function renderCards(list) {
   grid.innerHTML = Object.entries(seriesMap).map(([series, eps]) => {
     const c = getColor(series);
     // 대표 썸네일: 첫 번째 에피소드 썸네일
-    const repThumb = eps.find(e => e.thumb)?.thumb || '';
+    const repThumb = seriesCovers[series] || eps.find(e => e.thumb)?.thumb || '';
     const seriesLabel = eps[0].seriesLabel;
     const hasNew = eps.some(e => e.isNew);
     return `
@@ -1178,11 +1179,12 @@ function openSeriesDetail(series) {
   const c = getColor(series);
   const seriesLabel = eps[0].seriesLabel;
   const repEp = eps.find(e => e.thumb) || eps[0];
+  const coverUrl = seriesCovers[series] || repEp.thumb || '';
 
   document.getElementById('series-header-title').textContent = seriesLabel;
 
-  const thumbHtml = repEp.thumb
-    ? `<img src="${repEp.thumb}" alt="${seriesLabel}">`
+  const thumbHtml = coverUrl
+    ? `<img src="${coverUrl}" alt="${seriesLabel}">`
     : `<div class="series-top-thumb-placeholder" style="background:${c.thumb};">${c.emoji}</div>`;
 
   const epItemsHtml = eps.map(ep => {
@@ -1292,6 +1294,7 @@ async function moveEp(id, dir) {
 
 // Supabase에서 불러오기
 async function loadFromSupabase() {
+  await loadSeriesCovers();
   try {
     const { data, error } = await sbClient
       .from('webtoons')
@@ -1370,6 +1373,8 @@ loadFromSupabase();
 
     <!-- CONTENT -->
     <div class="admin-content" id="admin-content">
+      <!-- 시리즈 대표 이미지 관리 -->
+      <div id="series-cover-section" style="margin-bottom:16px;"></div>
       <div class="admin-tabs" id="admin-tabs"></div>
       <div id="admin-ep-list"></div>
       <button onclick="showAddForm()" style="width:100%;padding:12px;background:none;border:2px dashed var(--gray-200);border-radius:var(--radius-md);font-family:inherit;font-size:14px;font-weight:600;color:var(--blue);cursor:pointer;margin-bottom:12px;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background='none'">
@@ -1447,6 +1452,7 @@ function doLogin() {
     document.getElementById('admin-login').style.display = 'none';
     document.getElementById('admin-title').textContent = '웹툰 관리자 패널';
     document.getElementById('admin-content').classList.add('visible');
+    renderSeriesCoverSection();
     renderAdminTabs('all');
   } else {
     document.getElementById('login-error').style.display = 'block';
@@ -1605,6 +1611,64 @@ function refreshSeriesSelect() {
       return `<option value="${s}">${label}</option>`;
     }).join('') +
     '<option value="__new__">+ 새 시리즈 추가</option>';
+}
+
+
+function renderSeriesCoverSection() {
+  const section = document.getElementById('series-cover-section');
+  if (!section) return;
+  const seriesKeys = [...new Set(webtoons.map(w => w.series))];
+  if (seriesKeys.length === 0) { section.innerHTML = ''; return; }
+
+  section.innerHTML = `
+    <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:14px;margin-bottom:4px;">
+      <div style="font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:12px;">📌 시리즈 대표 이미지</div>
+      ${seriesKeys.map(s => {
+        const label = webtoons.find(w=>w.series===s)?.seriesLabel || s;
+        const cur = seriesCovers[s] || '';
+        return `
+        <div style="margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:4px;">${label}</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            ${cur ? `<img src="${cur}" style="width:40px;height:54px;object-fit:cover;border-radius:4px;border:1px solid var(--gray-200);">` : `<div style="width:40px;height:54px;background:var(--gray-200);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:16px;">🖼</div>`}
+            <input type="text" id="cover-${s}" value="${cur}" placeholder="Cloudinary URL 입력"
+              style="flex:1;font-family:inherit;font-size:12px;padding:7px 10px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;"/>
+            <button onclick="saveSeriesCover('${s}')"
+              style="padding:7px 12px;background:var(--blue);color:white;border:none;border-radius:var(--radius-sm);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">저장</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+async function saveSeriesCover(series) {
+  const url = document.getElementById('cover-' + series)?.value.trim();
+  if (!url) return;
+  seriesCovers[series] = url;
+  try {
+    await sbClient.from('series_covers').upsert([{ series, cover_url: url }]);
+  } catch(e) {
+    localStorage.setItem('hypo_series_covers', JSON.stringify(seriesCovers));
+  }
+  renderSeriesCoverSection();
+  renderCards(webtoons);
+  const toast = document.getElementById('save-toast');
+  toast.textContent = '🖼 대표 이미지 저장됨';
+  toast.classList.add('show');
+  setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ 저장되었습니다'; }, 2000);
+}
+
+async function loadSeriesCovers() {
+  try {
+    const { data, error } = await sbClient.from('series_covers').select('*');
+    if (!error && data) data.forEach(row => { seriesCovers[row.series] = row.cover_url; });
+  } catch(e) {
+    try {
+      const saved = localStorage.getItem('hypo_series_covers');
+      if (saved) Object.assign(seriesCovers, JSON.parse(saved));
+    } catch(e2) {}
+  }
 }
 
 function showAddForm() {
