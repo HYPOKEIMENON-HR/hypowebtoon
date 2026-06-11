@@ -182,31 +182,6 @@
   }
 
   /* FILTER TABS */
-  .filter-section {
-    padding: 32px 40px 0;
-  }
-  .filter-tabs {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid var(--gray-200);
-    padding-bottom: 0;
-  }
-  .tab-btn {
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--gray-600);
-    background: none;
-    border: none;
-    padding: 10px 16px;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    transition: color 0.15s;
-    margin-bottom: -1px;
-    white-space: nowrap;
-  }
-  .tab-btn:hover { color: var(--gray-900); }
   .tab-btn.active {
     color: var(--blue);
     border-bottom-color: var(--blue);
@@ -506,11 +481,7 @@
     .hero h1 { font-size: 26px; letter-spacing: -0.8px; }
     .hero-sub { font-size: 14px; }
     .hero-eyebrow { font-size: 11px; }
-    .filter-section { padding: 16px 16px 0; overflow-x: auto; }
-    .filter-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
-    .filter-tabs::-webkit-scrollbar { display: none; }
-    .tab-btn { font-size: 13px; padding: 8px 12px; white-space: nowrap; }
-    .grid-section { padding: 16px 16px 48px; }
+            .grid-section { padding: 16px 16px 48px; }
     .section-header { flex-direction: column; align-items: flex-start; gap: 8px; }
     .sort-bar { width: 100%; justify-content: space-between; }
     .webtoon-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -551,6 +522,174 @@
     transition: border-color 0.15s;
   }
   .sort-select:focus { border-color: var(--blue); }
+
+
+  /* SERIES DETAIL */
+  .series-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--gray-50);
+    z-index: 250;
+    overflow-y: auto;
+  }
+  .series-overlay.open { display: block; }
+
+  .series-header {
+    position: sticky;
+    top: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 24px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+  .series-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-600);
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s, color 0.15s;
+    width: 80px;
+  }
+  .series-back:hover { background: var(--gray-100); color: var(--gray-900); }
+  .series-header-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gray-900);
+  }
+
+  .series-body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px 24px 80px;
+  }
+
+  .series-top {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--gray-200);
+  }
+  .series-top-thumb {
+    width: 100px;
+    min-width: 100px;
+    aspect-ratio: 3/4;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--gray-100);
+  }
+  .series-top-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .series-top-thumb-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+  }
+  .series-top-info { flex: 1; }
+  .series-top-badge {
+    display: inline-block;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 100px;
+    margin-bottom: 8px;
+  }
+  .series-top-title {
+    font-size: 20px; font-weight: 700;
+    color: var(--gray-900); letter-spacing: -0.4px;
+    margin-bottom: 6px; line-height: 1.3;
+  }
+  .series-top-desc {
+    font-size: 13px; color: var(--gray-600);
+    line-height: 1.7; word-break: keep-all;
+    margin-bottom: 10px;
+  }
+  .series-ep-count-badge {
+    font-size: 12px; font-weight: 600;
+    color: var(--blue);
+    background: var(--blue-light);
+    padding: 4px 12px; border-radius: 100px;
+    display: inline-block;
+  }
+
+  .ep-list-wrap {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+  }
+  .ep-list-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 13px; font-weight: 600; color: var(--gray-900);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ep-sort-btn {
+    font-family: inherit; font-size: 12px; font-weight: 500;
+    color: var(--gray-500); background: none;
+    border: 1px solid var(--gray-200); border-radius: 100px;
+    padding: 3px 10px; cursor: pointer;
+  }
+
+  .ep-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .ep-item:last-child { border-bottom: none; }
+  .ep-item:hover { background: var(--gray-50); }
+
+  .ep-item-thumb {
+    width: 80px; min-width: 80px;
+    aspect-ratio: 3/4;
+    border-radius: var(--radius-sm);
+    overflow: hidden; background: var(--gray-100);
+  }
+  .ep-item-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ep-item-thumb-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+  .ep-item-info { flex: 1; min-width: 0; }
+  .ep-item-ep {
+    font-size: 11px; color: var(--gray-400); font-weight: 500; margin-bottom: 4px;
+  }
+  .ep-item-title {
+    font-size: 14px; font-weight: 600; color: var(--gray-900);
+    line-height: 1.4; word-break: keep-all;
+    margin-bottom: 4px;
+  }
+  .ep-item-tag {
+    font-size: 11px; color: var(--gray-400);
+  }
+  .ep-item-arrow { color: var(--gray-300); font-size: 18px; }
+  .ep-item-new {
+    font-size: 10px; font-weight: 700; color: #FF4D4D;
+    background: rgba(255,77,77,0.1);
+    padding: 2px 6px; border-radius: 100px; margin-left: 6px;
+  }
+
+  .ep-empty {
+    text-align: center; padding: 48px 20px;
+    color: var(--gray-400);
+  }
+  .ep-empty p { font-size: 14px; margin-top: 8px; }
 
   /* ADMIN */
   .admin-btn {
@@ -860,6 +999,43 @@
   .viewer-empty p { font-size: 15px; font-weight: 500; }
   .viewer-empty span { font-size: 13px; opacity: 0.6; }
 
+
+  .viewer-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .viewer-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .viewer-nav-btn:hover { background: rgba(255,255,255,0.18); color: white; }
+  .viewer-nav-btn:disabled { opacity: 0.25; cursor: default; }
+  .viewer-nav-btn.next {
+    background: rgba(49,130,246,0.25);
+    border-color: rgba(49,130,246,0.4);
+    color: #7FB8FF;
+  }
+  .viewer-nav-btn.next:hover { background: rgba(49,130,246,0.4); color: white; }
+
   .viewer-end {
     text-align: center;
     padding: 40px 20px;
@@ -885,42 +1061,6 @@
     transition: background 0.15s;
   }
   .viewer-end-btn:hover { background: rgba(255,255,255,0.18); color: white; }
-  .viewer-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-  }
-  .viewer-nav-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 18px;
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.8);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 100px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    max-width: 220px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .viewer-nav-btn:hover { background: rgba(255,255,255,0.18); color: white; }
-  .viewer-nav-btn:disabled { opacity: 0.25; cursor: default; }
-  .viewer-nav-btn.next {
-    background: rgba(49,130,246,0.25);
-    border-color: rgba(49,130,246,0.4);
-    color: #7FB8FF;
-  }
-  .viewer-nav-btn.next:hover { background: rgba(49,130,246,0.4); color: white; }
-
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -959,27 +1099,25 @@
 </section>
 
 <!-- FILTER TABS -->
-<div class="filter-section">
-  <div class="filter-tabs" id="filter-tabs">
-    <button class="tab-btn active" data-type="all" onclick="filterCards('all', this)">전체 <span class="tab-count">0</span></button>
-  </div>
-</div>
+
 
 <!-- GRID -->
 <div class="grid-section">
-  <div class="section-header">
-    <span class="section-title" id="section-title">전체 웹툰</span>
-    <div class="sort-bar">
-      <span class="section-count" id="section-count">12편</span>
-      <select class="sort-select" id="sort-select" onchange="applySortAndRender()">
-        <option value="upload">업로드순</option>
-        <option value="ep">EP 번호순</option>
-        <option value="ep_desc">EP 번호 역순</option>
-        <option value="title">제목순</option>
-      </select>
-    </div>
-  </div>
+
   <div class="webtoon-grid" id="webtoon-grid"></div>
+</div>
+
+<!-- SERIES DETAIL PAGE -->
+<div class="series-overlay" id="series-overlay">
+  <div class="series-header">
+    <button class="series-back" onclick="closeSeriesDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      목록으로
+    </button>
+    <span class="series-header-title" id="series-header-title"></span>
+    <div style="width:80px;"></div>
+  </div>
+  <div class="series-body" id="series-body"></div>
 </div>
 
 <!-- MODAL -->
@@ -998,6 +1136,7 @@
 
 <script>
 const webtoons = [];
+const seriesCovers = {}; // { series키: 대표이미지URL }
 
 // bgMap, badgeMap은 getColor()로 대체됨
 const colorPalette = [
@@ -1019,7 +1158,7 @@ function getColor(series) {
 
 function renderCards(list) {
   const grid = document.getElementById('webtoon-grid');
-  if (list.length === 0) {
+  if (webtoons.length === 0) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--gray-400);">
       <div style="font-size:40px;margin-bottom:12px;">📭</div>
       <div style="font-size:15px;font-weight:600;color:var(--gray-600);margin-bottom:6px;">아직 등록된 웹툰이 없어요</div>
@@ -1027,87 +1166,102 @@ function renderCards(list) {
     </div>`;
     return;
   }
-  grid.innerHTML = list.map(w => {
-    const c = getColor(w.series);
+
+  // 시리즈별로 묶어서 대표 카드 렌더링
+  const seriesMap = {};
+  webtoons.forEach(w => {
+    if (!seriesMap[w.series]) seriesMap[w.series] = [];
+    seriesMap[w.series].push(w);
+  });
+
+  grid.innerHTML = Object.entries(seriesMap).map(([series, eps]) => {
+    const c = getColor(series);
+    // 대표 썸네일: 첫 번째 에피소드 썸네일
+    const repThumb = seriesCovers[series] || eps.find(e => e.thumb)?.thumb || '';
+    const seriesLabel = eps[0].seriesLabel;
+    const hasNew = eps.some(e => e.isNew);
     return `
-    <div class="webtoon-card" onclick="openModal(${w.id})">
+    <div class="webtoon-card" onclick="openSeriesDetail('${series}')">
       <div class="card-thumb">
-        ${w.thumb
-          ? `<img src="${w.thumb}" alt="${w.title}" style="width:100%;height:100%;object-fit:cover;display:block;">`
-          : `<div class="card-thumb-placeholder" style="background:${c.thumb}">
-          <div style="font-size:36px;margin-bottom:4px;">${c.emoji}</div>
-          <div class="ep-num">${w.ep}</div>
-          <div class="ep-title-mini" style="color:var(--gray-800);">${w.tag}</div>
-        </div>`
+        ${repThumb
+          ? `<img src="${repThumb}" alt="${seriesLabel}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+          : `<div class="card-thumb-placeholder" style="background:${c.thumb};">
+              <div style="font-size:40px;">${c.emoji}</div>
+            </div>`
         }
-        <span class="card-badge" style="background:${c.badgeBg};color:${c.badge};">${w.seriesLabel}</span>
-        ${w.isNew ? '<span class="badge-new">NEW</span>' : ''}
+        ${hasNew ? '<span class="badge-new">NEW</span>' : ''}
       </div>
       <div class="card-body">
-        <div class="card-series">${w.seriesLabel} · ${w.ep}</div>
-        <div class="card-title">${w.title}</div>
+        <div class="card-title">${seriesLabel}</div>
         <div class="card-meta">
-          <span class="card-ep">${w.ep}</span>
-          <span class="card-tag">${w.tag}</span>
+          <span class="card-ep">총 ${eps.length}화</span>
         </div>
       </div>
     </div>`;
   }).join('');
 }
 
-function filterCards(type, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentFilterType = type;
-  const labels = { all:'전체 웹툰' };
-  const seriesSet = [...new Set(webtoons.map(w => w.series))];
-  seriesSet.forEach(s => { labels[s] = webtoons.find(w=>w.series===s)?.seriesLabel || s; });
-  document.getElementById('section-title').textContent = labels[type] || type;
-  updateTabCounts();
-  applySortAndRender();
-}
+function filterCards() { renderCards(webtoons); }
+function updateTabCounts() { renderCards(webtoons); }
 
-function updateTabCounts() {
-  // 시리즈 탭 동적 렌더링
-  const tabs = document.getElementById('filter-tabs');
-  const series = [...new Set(webtoons.map(w => w.series))];
-  const activeType = document.querySelector('.tab-btn.active')?.getAttribute('data-type') || 'all';
+function openModal(id) {}
+function closeModal(e) {}
 
-  tabs.innerHTML = `<button class="tab-btn ${activeType==='all'?'active':''}" data-type="all" onclick="filterCards('all', this)">전체 <span class="tab-count">${webtoons.length}</span></button>` +
-    series.map(s => {
-      const label = webtoons.find(w => w.series === s)?.seriesLabel || s;
-      const count = webtoons.filter(w => w.series === s).length;
-      return `<button class="tab-btn ${activeType===s?'active':''}" data-type="${s}" onclick="filterCards('${s}', this)">${label} <span class="tab-count">${count}</span></button>`;
-    }).join('');
-}
+function openSeriesDetail(series) {
+  const eps = webtoons
+    .filter(w => w.series === series)
+    .sort((a, b) => a.ep.localeCompare(b.ep, undefined, {numeric: true}));
+  if (eps.length === 0) return;
 
-function openModal(id) {
-  const w = webtoons.find(x => x.id === Number(id));
-  const c = getColor(w.series);
-  document.getElementById('modal-content').innerHTML = `
-    ${w.thumb
-      ? `<div class="modal-thumb" style="padding:0;overflow:hidden;border-radius:var(--radius-md);">
-          <img src="${w.thumb}" alt="${w.title}" style="width:100%;height:100%;object-fit:cover;">
-         </div>`
-      : `<div class="modal-thumb" style="background:${c.thumb};">
-          <span style="font-size:56px;">${c.emoji}</span>
-         </div>`
-    }
-    <span class="modal-badge" style="background:${c.badgeBg};color:${c.badge};">${w.seriesLabel} · ${w.ep}</span>
-    <div class="modal-title">${w.title}</div>
-    <div class="modal-desc">${w.desc}</div>
-    <div class="modal-info-row">
-      ${w.keywords.map(k => `<span class="modal-tag">#${k}</span>`).join('')}
+  const c = getColor(series);
+  const seriesLabel = eps[0].seriesLabel;
+  const repEp = eps.find(e => e.thumb) || eps[0];
+  const coverUrl = seriesCovers[series] || repEp.thumb || '';
+
+  document.getElementById('series-header-title').textContent = seriesLabel;
+
+  const thumbHtml = coverUrl
+    ? `<img src="${coverUrl}" alt="${seriesLabel}">`
+    : `<div class="series-top-thumb-placeholder" style="background:${c.thumb};">${c.emoji}</div>`;
+
+  const epItemsHtml = eps.map(ep => {
+    const epThumb = ep.thumb
+      ? `<img src="${ep.thumb}" alt="${ep.title}">`
+      : `<div class="ep-item-thumb-placeholder" style="background:${getColor(ep.series).thumb};">${getColor(ep.series).emoji}</div>`;
+    return `
+    <div class="ep-item" onclick="openViewer(${ep.id});">
+      <div class="ep-item-thumb">${epThumb}</div>
+      <div class="ep-item-info">
+        <div class="ep-item-ep">${ep.ep}</div>
+        <div class="ep-item-title">${ep.title}${ep.isNew ? '<span class="ep-item-new">NEW</span>' : ''}</div>
+        <div class="ep-item-tag">${ep.tag}</div>
+      </div>
+      <span class="ep-item-arrow">›</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('series-body').innerHTML = `
+    <div class="series-top">
+      <div class="series-top-thumb">${thumbHtml}</div>
+      <div class="series-top-info">
+        <span class="series-top-badge" style="background:${c.badgeBg};color:${c.badge};">${seriesLabel}</span>
+        <div class="series-top-title">${seriesLabel}</div>
+        <div class="series-top-desc">${repEp.desc || ''}</div>
+        <span class="series-ep-count-badge">총 ${eps.length}화</span>
+      </div>
     </div>
-    <button class="modal-btn" onclick="openViewer(${w.id}); document.getElementById('modal-overlay').classList.remove('open');">웹툰 보기 →</button>
+    <div class="ep-list-wrap">
+      <div class="ep-list-header"><span>에피소드 목록</span></div>
+      ${epItemsHtml}
+    </div>
   `;
-  document.getElementById('modal-overlay').classList.add('open');
+
+  document.getElementById('series-overlay').classList.add('open');
+  document.getElementById('series-overlay').scrollTop = 0;
 }
 
-function closeModal(e) {
-  if (e.target === document.getElementById('modal-overlay')) {
-    document.getElementById('modal-overlay').classList.remove('open');
-  }
+function closeSeriesDetail() {
+  document.getElementById('series-overlay').classList.remove('open');
 }
 
 
@@ -1115,21 +1269,7 @@ function closeModal(e) {
 let currentFilterType = 'all';
 let currentViewerSeries = '';
 
-function applySortAndRender() {
-  const sortVal = document.getElementById('sort-select')?.value || 'upload';
-  const filtered = currentFilterType === 'all' ? [...webtoons] : webtoons.filter(w => w.series === currentFilterType);
-
-  filtered.sort((a, b) => {
-    if (sortVal === 'upload') return a.id - b.id;
-    if (sortVal === 'ep') return a.ep.localeCompare(b.ep, undefined, {numeric:true});
-    if (sortVal === 'ep_desc') return b.ep.localeCompare(a.ep, undefined, {numeric:true});
-    if (sortVal === 'title') return a.title.localeCompare(b.title, 'ko');
-    return 0;
-  });
-
-  renderCards(filtered);
-  document.getElementById('section-count').textContent = filtered.length + '편';
-}
+function applySortAndRender() { renderCards(webtoons); }
 
 // ── 삭제 ──
 async function deleteEp(id) {
@@ -1191,7 +1331,25 @@ async function moveEp(id, dir) {
 }
 
 // Supabase에서 불러오기
+async function loadSeriesCovers() {
+  // localStorage 먼저
+  try {
+    const saved = localStorage.getItem('hypo_series_covers');
+    if (saved) Object.assign(seriesCovers, JSON.parse(saved));
+  } catch(e) {}
+  // Supabase로 덮어쓰기
+  try {
+    const { data, error } = await sbClient.from('series_covers').select('*');
+    if (!error && data && data.length > 0) {
+      data.forEach(row => { seriesCovers[row.series] = row.cover_url; });
+    }
+  } catch(e) {
+    console.warn('series_covers Supabase 로드 실패, localStorage 사용');
+  }
+}
+
 async function loadFromSupabase() {
+  try { await loadSeriesCovers(); } catch(e) { console.warn('series_covers 로드 실패:', e); }
   try {
     const { data, error } = await sbClient
       .from('webtoons')
@@ -1270,6 +1428,8 @@ loadFromSupabase();
 
     <!-- CONTENT -->
     <div class="admin-content" id="admin-content">
+      <!-- 시리즈 대표 이미지 관리 -->
+      <div id="series-cover-section" style="margin-bottom:16px;"></div>
       <div class="admin-tabs" id="admin-tabs"></div>
       <div id="admin-ep-list"></div>
       <button onclick="showAddForm()" style="width:100%;padding:12px;background:none;border:2px dashed var(--gray-200);border-radius:var(--radius-md);font-family:inherit;font-size:14px;font-weight:600;color:var(--blue);cursor:pointer;margin-bottom:12px;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background='none'">
@@ -1347,6 +1507,7 @@ function doLogin() {
     document.getElementById('admin-login').style.display = 'none';
     document.getElementById('admin-title').textContent = '웹툰 관리자 패널';
     document.getElementById('admin-content').classList.add('visible');
+    renderSeriesCoverSection();
     renderAdminTabs('all');
   } else {
     document.getElementById('login-error').style.display = 'block';
@@ -1462,7 +1623,6 @@ function openViewer(id) {
   document.getElementById('viewer-series-label').textContent = w.seriesLabel + ' · ' + w.ep;
   document.getElementById('viewer-ep-title').textContent = w.title;
 
-  // 같은 시리즈 이전/다음
   const sameSeries = webtoons
     .filter(x => x.series === w.series)
     .sort((a, b) => a.ep.localeCompare(b.ep, undefined, {numeric: true}));
@@ -1488,11 +1648,11 @@ function openViewer(id) {
     <div class="viewer-end">
       <p>— 완 —</p>
       <div class="viewer-nav">
-        <button class="viewer-nav-btn" onclick="openViewer(${prevEp ? prevEp.id : ''})" ${!prevEp ? 'disabled' : ''}>
+        <button class="viewer-nav-btn" onclick="if(${prevEp ? prevEp.id : 0})openViewer(${prevEp ? prevEp.id : 0})" ${!prevEp ? 'disabled' : ''}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           ${prevEp ? prevEp.ep + ' ' + prevEp.title : '이전 편 없음'}
         </button>
-        <button class="viewer-nav-btn next" onclick="openViewer(${nextEp ? nextEp.id : ''})" ${!nextEp ? 'disabled' : ''}>
+        <button class="viewer-nav-btn next" onclick="if(${nextEp ? nextEp.id : 0})openViewer(${nextEp ? nextEp.id : 0})" ${!nextEp ? 'disabled' : ''}>
           ${nextEp ? nextEp.ep + ' ' + nextEp.title : '다음 편 없음'}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
@@ -1531,6 +1691,57 @@ function refreshSeriesSelect() {
       return `<option value="${s}">${label}</option>`;
     }).join('') +
     '<option value="__new__">+ 새 시리즈 추가</option>';
+}
+
+
+function renderSeriesCoverSection() {
+  const section = document.getElementById('series-cover-section');
+  if (!section) return;
+  const seriesKeys = [...new Set(webtoons.map(w => w.series))];
+  if (seriesKeys.length === 0) { section.innerHTML = ''; return; }
+
+  section.innerHTML = `
+    <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:14px;margin-bottom:4px;">
+      <div style="font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:12px;">📌 시리즈 대표 이미지</div>
+      ${seriesKeys.map(s => {
+        const label = webtoons.find(w=>w.series===s)?.seriesLabel || s;
+        const cur = seriesCovers[s] || '';
+        return `
+        <div style="margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:4px;">${label}</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            ${cur ? `<img src="${cur}" style="width:40px;height:54px;object-fit:cover;border-radius:4px;border:1px solid var(--gray-200);">` : `<div style="width:40px;height:54px;background:var(--gray-200);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:16px;">🖼</div>`}
+            <input type="text" id="cover-${s}" value="${cur}" placeholder="Cloudinary URL 입력"
+              style="flex:1;font-family:inherit;font-size:12px;padding:7px 10px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);outline:none;"/>
+            <button onclick="saveSeriesCover('${s}')"
+              style="padding:7px 12px;background:var(--blue);color:white;border:none;border-radius:var(--radius-sm);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">저장</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+async function saveSeriesCover(series) {
+  const url = document.getElementById('cover-' + series)?.value.trim();
+  if (!url) return;
+  seriesCovers[series] = url;
+
+  // Supabase + localStorage 둘 다 저장
+  localStorage.setItem('hypo_series_covers', JSON.stringify(seriesCovers));
+  try {
+    const { error } = await sbClient.from('series_covers').upsert([{ series, cover_url: url }]);
+    if (error) console.error('series_covers 저장 오류:', error);
+  } catch(e) {
+    console.error('series_covers 저장 실패:', e);
+  }
+
+  renderSeriesCoverSection();
+  renderCards(webtoons);
+  const toast = document.getElementById('save-toast');
+  toast.textContent = '🖼 대표 이미지 저장됨';
+  toast.classList.add('show');
+  setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ 저장되었습니다'; }, 2000);
 }
 
 function showAddForm() {
