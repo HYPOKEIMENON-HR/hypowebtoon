@@ -1294,7 +1294,7 @@ async function moveEp(id, dir) {
 
 // Supabase에서 불러오기
 async function loadFromSupabase() {
-  await loadSeriesCovers();
+  try { await loadSeriesCovers(); } catch(e) { console.warn('series_covers 로드 실패:', e); }
   try {
     const { data, error } = await sbClient
       .from('webtoons')
