@@ -1215,10 +1215,16 @@ function isNew(w) {
   return diffDays <= 7;
 }
 
+function epToNum(ep) {
+  // 'EP.01', 'E03', 'ep.1' 등에서 숫자만 추출
+  const m = String(ep).match(/\d+/);
+  return m ? parseInt(m[0], 10) : 0;
+}
+
 function sortEps(eps, sortVal) {
   const sorted = [...eps];
-  if (sortVal === 'ep' || !sortVal) sorted.sort((a, b) => a.ep.localeCompare(b.ep, undefined, {numeric: true}));
-  else if (sortVal === 'ep_desc') sorted.sort((a, b) => b.ep.localeCompare(a.ep, undefined, {numeric: true}));
+  if (sortVal === 'ep' || !sortVal) sorted.sort((a, b) => epToNum(a.ep) - epToNum(b.ep));
+  else if (sortVal === 'ep_desc') sorted.sort((a, b) => epToNum(b.ep) - epToNum(a.ep));
   else if (sortVal === 'upload') sorted.sort((a, b) => a.id - b.id);
   return sorted;
 }
@@ -1412,7 +1418,19 @@ async function loadFromSupabase() {
   applySortAndRender();
   updateTabCounts();
 }
-loadFromSupabase();
+// sbClient 준비될 때까지 대기 후 실행
+function waitForSupabaseAndLoad() {
+  if (typeof sbClient !== 'undefined' && sbClient) {
+    loadFromSupabase();
+  } else {
+    setTimeout(waitForSupabaseAndLoad, 100);
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', waitForSupabaseAndLoad);
+} else {
+  waitForSupabaseAndLoad();
+}
 </script>
 
 
@@ -1586,9 +1604,15 @@ function renderAdminTabs(tab) {
           <button onclick="deleteEp(${w.id})" title="삭제" style="background:none;border:1px solid #FECACA;border-radius:4px;width:26px;height:26px;cursor:pointer;font-size:12px;color:#E53E3E;display:flex;align-items:center;justify-content:center;">✕</button>
         </div>
       </div>
-      <div class="ep-field">
-        <label>제목</label>
-        <input type="text" id="title-${w.id}" value="${w.title}"/>
+      <div style="display:flex;gap:8px;">
+        <div class="ep-field" style="width:120px;flex-shrink:0;">
+          <label>EP 번호</label>
+          <input type="text" id="ep-${w.id}" value="${w.ep}" placeholder="EP.01"/>
+        </div>
+        <div class="ep-field" style="flex:1;">
+          <label>제목</label>
+          <input type="text" id="title-${w.id}" value="${w.title}"/>
+        </div>
       </div>
       <div class="ep-field">
         <label>설명</label>
@@ -1612,10 +1636,12 @@ function renderAdminTabs(tab) {
 
 async function saveChanges() {
   webtoons.forEach(w => {
+    const epEl = document.getElementById('ep-' + w.id);
     const titleEl = document.getElementById('title-' + w.id);
     const descEl = document.getElementById('desc-' + w.id);
     const thumbEl = document.getElementById('thumb-' + w.id);
     const tagEl = document.getElementById('tag-' + w.id);
+    if (epEl && epEl.value.trim()) w.ep = epEl.value.trim();
     if (titleEl) w.title = titleEl.value;
     if (descEl) w.desc = descEl.value;
     if (thumbEl && thumbEl.value.trim()) w.thumb = thumbEl.value.trim();
