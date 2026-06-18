@@ -562,8 +562,7 @@
     padding: 6px 8px;
     border-radius: var(--radius-sm);
     transition: background 0.15s, color 0.15s;
-    white-space: nowrap;
-    flex-shrink: 0;
+    width: 80px;
   }
   .series-back:hover { background: var(--gray-100); color: var(--gray-900); }
   .series-header-title {
@@ -1068,22 +1067,7 @@
 <script>
   const SUPABASE_URL = 'https://crqpwbadocwjhkvpiqft.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNycXB3YmFkb2N3amhrdnBpcWZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNjA4NzcsImV4cCI6MjA5NjYzNjg3N30.ngYICAprW6_lmId-7C_6D5D00UAFLnmuRUm8rwyrW00';
-  let sbClient;
-  function initSupabase() {
-    if (window.supabase && window.supabase.createClient) {
-      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      return true;
-    }
-    return false;
-  }
-  // 즉시 시도, 실패하면 DOM 로드 후 재시도
-  if (!initSupabase()) {
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!initSupabase()) {
-        console.error('Supabase SDK 로드 실패. 페이지를 새로고침해주세요.');
-      }
-    });
-  }
+  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 </script>
 </head>
 <body>
@@ -1195,7 +1179,7 @@ function renderCards(list) {
     // 대표 썸네일: 첫 번째 에피소드 썸네일
     const repThumb = seriesCovers[series] || eps.find(e => e.thumb)?.thumb || '';
     const seriesLabel = eps[0].seriesLabel;
-    const hasNew = eps.some(e => e.isNew);
+    const hasNew = eps.some(e => isNew(e));
     return `
     <div class="webtoon-card" onclick="openSeriesDetail('${series}')">
       <div class="card-thumb">
@@ -1223,11 +1207,55 @@ function updateTabCounts() { renderCards(webtoons); }
 function openModal(id) {}
 function closeModal(e) {}
 
+// NEW 뱃지 자동 만료 (7일)
+function isNew(w) {
+  if (!w.isNew) return false;
+  if (!w.created_at) return true;
+  const diffDays = (new Date() - new Date(w.created_at)) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
+}
+
+function sortEps(eps, sortVal) {
+  const sorted = [...eps];
+  if (sortVal === 'ep' || !sortVal) sorted.sort((a, b) => a.ep.localeCompare(b.ep, undefined, {numeric: true}));
+  else if (sortVal === 'ep_desc') sorted.sort((a, b) => b.ep.localeCompare(a.ep, undefined, {numeric: true}));
+  else if (sortVal === 'upload') sorted.sort((a, b) => a.id - b.id);
+  return sorted;
+}
+
+function buildEpListHtml(eps) {
+  return eps.map(ep => {
+    const epThumb = ep.thumb
+      ? `<img src="${ep.thumb}" alt="${ep.title}">`
+      : `<div class="ep-item-thumb-placeholder" style="background:${getColor(ep.series).thumb};">${getColor(ep.series).emoji}</div>`;
+    return `
+    <div class="ep-item" onclick="openViewer(${ep.id});">
+      <div class="ep-item-thumb">${epThumb}</div>
+      <div class="ep-item-info">
+        <div class="ep-item-ep">${ep.ep}</div>
+        <div class="ep-item-title">${ep.title}${isNew(ep) ? '<span class="ep-item-new">NEW</span>' : ''}</div>
+        <div class="ep-item-tag">${ep.tag}</div>
+      </div>
+      <span class="ep-item-arrow">›</span>
+    </div>`;
+  }).join('');
+}
+
+let currentSeriesKey = '';
+
+function resortEpList(series) {
+  const sortVal = document.getElementById('ep-sort-select')?.value || 'ep';
+  const eps = webtoons.filter(w => w.series === (series || currentSeriesKey));
+  const sorted = sortEps(eps, sortVal);
+  const epListWrap = document.getElementById('ep-list-inner');
+  if (epListWrap) epListWrap.innerHTML = buildEpListHtml(sorted);
+}
+
 function openSeriesDetail(series) {
-  const eps = webtoons
-    .filter(w => w.series === series)
-    .sort((a, b) => a.ep.localeCompare(b.ep, undefined, {numeric: true}));
-  if (eps.length === 0) return;
+  currentSeriesKey = series;
+  const allEps = webtoons.filter(w => w.series === series);
+  if (allEps.length === 0) return;
+  const eps = sortEps(allEps, 'ep');
 
   const c = getColor(series);
   const seriesLabel = eps[0].seriesLabel;
@@ -1240,22 +1268,6 @@ function openSeriesDetail(series) {
     ? `<img src="${coverUrl}" alt="${seriesLabel}">`
     : `<div class="series-top-thumb-placeholder" style="background:${c.thumb};">${c.emoji}</div>`;
 
-  const epItemsHtml = eps.map(ep => {
-    const epThumb = ep.thumb
-      ? `<img src="${ep.thumb}" alt="${ep.title}">`
-      : `<div class="ep-item-thumb-placeholder" style="background:${getColor(ep.series).thumb};">${getColor(ep.series).emoji}</div>`;
-    return `
-    <div class="ep-item" onclick="openViewer(${ep.id});">
-      <div class="ep-item-thumb">${epThumb}</div>
-      <div class="ep-item-info">
-        <div class="ep-item-ep">${ep.ep}</div>
-        <div class="ep-item-title">${ep.title}${ep.isNew ? '<span class="ep-item-new">NEW</span>' : ''}</div>
-        <div class="ep-item-tag">${ep.tag}</div>
-      </div>
-      <span class="ep-item-arrow">›</span>
-    </div>`;
-  }).join('');
-
   document.getElementById('series-body').innerHTML = `
     <div class="series-top">
       <div class="series-top-thumb">${thumbHtml}</div>
@@ -1267,15 +1279,22 @@ function openSeriesDetail(series) {
       </div>
     </div>
     <div class="ep-list-wrap">
-      <div class="ep-list-header"><span>에피소드 목록</span></div>
-      ${epItemsHtml}
+      <div class="ep-list-header">
+        <span>에피소드 목록</span>
+        <select id="ep-sort-select" onchange="resortEpList('${series}')"
+          style="font-family:inherit;font-size:12px;font-weight:500;color:var(--gray-600);background:none;border:1px solid var(--gray-200);border-radius:100px;padding:3px 10px;cursor:pointer;outline:none;">
+          <option value="ep">EP 번호순</option>
+          <option value="upload">업로드순</option>
+          <option value="ep_desc">EP 역순</option>
+        </select>
+      </div>
+      <div id="ep-list-inner">${buildEpListHtml(eps)}</div>
     </div>
   `;
 
   document.getElementById('series-overlay').classList.add('open');
   document.getElementById('series-overlay').scrollTop = 0;
 }
-
 function closeSeriesDetail() {
   document.getElementById('series-overlay').classList.remove('open');
 }
@@ -1385,6 +1404,7 @@ async function loadFromSupabase() {
       desc: row.description || '',
       keywords: row.keywords || [],
       pages: row.pages || [],
+      created_at: row.created_at || null,
     }));
   } catch(e) {
     console.error('Supabase 로드 오류:', e);
