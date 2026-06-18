@@ -1420,6 +1420,10 @@ async function loadFromSupabase() {
   }
   applySortAndRender();
   updateTabCounts();
+  // 관리자 패널 열려있으면 커버 섹션도 갱신
+  if (document.getElementById('admin-content')?.classList.contains('visible')) {
+    renderSeriesCoverSection();
+  }
 }
 // sbClient 준비될 때까지 대기 후 실행
 function waitForSupabaseAndLoad() {
@@ -1858,6 +1862,7 @@ async function addEpisode() {
   renderAdminTabs(currentTab);
   renderCards(webtoons);
   updateTabCounts();
+  renderSeriesCoverSection();
 
   // Supabase insert
   try {
