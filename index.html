@@ -1321,7 +1321,7 @@ function getSeriesViews(eps) {
 
 async function loadViewCounts() {
   try {
-    const { data, error } = await sbClient.from('webtoon_views').select('webtoon_id, views');
+    const { data, error } = await sbClient.rpc('get_view_counts');
     if (error) throw error;
     Object.keys(viewCounts).forEach(key => delete viewCounts[key]);
     (data || []).forEach(row => {
