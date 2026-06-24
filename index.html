@@ -1023,17 +1023,20 @@
     position: fixed;
     bottom: 80px;
     right: 24px;
+    max-width: min(520px, calc(100vw - 48px));
     background: var(--gray-900);
     color: white;
     font-size: 13px;
     font-weight: 500;
     padding: 10px 18px;
-    border-radius: 100px;
+    border-radius: 14px;
     z-index: 500;
     opacity: 0;
     transform: translateY(8px);
     transition: opacity 0.2s, transform 0.2s;
     pointer-events: none;
+    line-height: 1.45;
+    word-break: keep-all;
   }
   .save-toast.show { opacity: 1; transform: translateY(0); }
 
@@ -1368,7 +1371,7 @@ function renderCards(list) {
 
   grid.innerHTML = Object.entries(seriesMap).map(([series, eps]) => {
     const c = getColor(series);
-    // 대표 썸네일: 첫 번째 에피소드 썸네일
+    // 대표 썸네일: seriesCovers 우선, 없으면 첫 번째 에피소드 썸네일
     const repThumb = seriesCovers[series] || eps.find(e => e.thumb)?.thumb || '';
     const seriesLabel = eps[0].seriesLabel;
     const hasNew = eps.some(e => isNew(e));
@@ -1988,29 +1991,42 @@ async function saveSeriesCover(series) {
   if (!url) return;
   seriesCovers[series] = url;
 
-  // Supabase + localStorage 둘 다 저장
+  // localStorage 저장
   localStorage.setItem('hypo_series_covers', JSON.stringify(seriesCovers));
   let savedToSupabase = false;
-  let saveErrorMessage = '';
+
   try {
-    const { error } = await sbClient.rpc('set_series_cover', {
-      target_cover_url: url,
-      target_series: series,
-    });
-    if (error) {
-      saveErrorMessage = error.message || 'Supabase 저장 실패';
-      console.error('series_covers 저장 오류:', error);
+    // 기존 행 있는지 확인
+    const { data: existing } = await sbClient
+      .from('series_covers')
+      .select('series')
+      .eq('series', series)
+      .maybeSingle();
+
+    if (existing) {
+      // 있으면 UPDATE
+      const { error } = await sbClient
+        .from('series_covers')
+        .update({ cover_url: url, updated_at: new Date().toISOString() })
+        .eq('series', series);
+      if (!error) savedToSupabase = true;
+      else console.error('UPDATE 오류:', error);
+    } else {
+      // 없으면 INSERT
+      const { error } = await sbClient
+        .from('series_covers')
+        .insert({ series, cover_url: url, updated_at: new Date().toISOString() });
+      if (!error) savedToSupabase = true;
+      else console.error('INSERT 오류:', error);
     }
-    savedToSupabase = !error;
   } catch(e) {
-    saveErrorMessage = e.message || 'Supabase 저장 실패';
     console.error('series_covers 저장 실패:', e);
   }
 
   renderSeriesCoverSection();
   renderCards(webtoons);
   const toast = document.getElementById('save-toast');
-  toast.textContent = savedToSupabase ? '🖼 대표 이미지 저장됨' : `⚠ 저장 실패: ${saveErrorMessage}`;
+  toast.textContent = savedToSupabase ? '🖼 대표 이미지 저장됨' : '⚠ 저장 실패: Supabase 오류';
   toast.classList.add('show');
   setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ 저장되었습니다'; }, 2000);
 }
