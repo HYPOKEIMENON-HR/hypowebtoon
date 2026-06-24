@@ -1451,6 +1451,7 @@ function buildEpListHtml(eps) {
 }
 
 let currentSeriesKey = '';
+let _navigatingHistory = false;
 
 function resortEpList(series) {
   const sortVal = document.getElementById('ep-sort-select')?.value || 'ep';
@@ -1497,9 +1498,10 @@ function openSeriesDetail(series) {
 
   document.getElementById('series-overlay').classList.add('open');
   document.getElementById('series-overlay').scrollTop = 0;
+  if (!_navigatingHistory) history.pushState({page: 'series', series}, '');
 }
 function closeSeriesDetail() {
-  document.getElementById('series-overlay').classList.remove('open');
+  history.back();
 }
 
 
@@ -1927,6 +1929,7 @@ function openViewer(id) {
 
   document.getElementById('viewer-overlay').classList.add('open');
   document.getElementById('viewer-overlay').scrollTop = 0;
+  if (!_navigatingHistory) history.pushState({page: 'viewer', id, series: w.series}, '');
 }
 
 function closeViewer() {
@@ -1934,11 +1937,27 @@ function closeViewer() {
 }
 
 function backToSeries() {
-  closeViewer();
-  if (currentViewerSeries) openSeriesDetail(currentViewerSeries);
+  history.back();
 }
 
 
+
+// 브라우저 뒤로/앞으로 버튼 처리
+history.replaceState({page: 'home'}, '');
+window.addEventListener('popstate', function(e) {
+  const state = e.state;
+  _navigatingHistory = true;
+  if (!state || state.page === 'home') {
+    document.getElementById('viewer-overlay').classList.remove('open');
+    document.getElementById('series-overlay').classList.remove('open');
+  } else if (state.page === 'series') {
+    document.getElementById('viewer-overlay').classList.remove('open');
+    if (state.series) openSeriesDetail(state.series);
+  } else if (state.page === 'viewer') {
+    if (state.id) openViewer(state.id);
+  }
+  _navigatingHistory = false;
+});
 
 function handleSeriesSelect(sel) {
   const wrap = document.getElementById('new-series-custom-wrap');
