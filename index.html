@@ -1369,7 +1369,17 @@ function renderCards(list) {
     seriesMap[w.series].push(w);
   });
 
-  grid.innerHTML = Object.entries(seriesMap).map(([series, eps]) => {
+  // 최신 업데이트 순 정렬 (NEW 있는 시리즈 우선, 그 다음 최근 추가된 에피소드 기준)
+  const sortedSeries = Object.entries(seriesMap).sort(([, aEps], [, bEps]) => {
+    const aHasNew = aEps.some(e => isNew(e));
+    const bHasNew = bEps.some(e => isNew(e));
+    if (aHasNew !== bHasNew) return aHasNew ? -1 : 1;
+    const aMaxId = Math.max(...aEps.map(e => e.id));
+    const bMaxId = Math.max(...bEps.map(e => e.id));
+    return bMaxId - aMaxId;
+  });
+
+  grid.innerHTML = sortedSeries.map(([series, eps]) => {
     const c = getColor(series);
     // 대표 썸네일: seriesCovers 우선, 없으면 첫 번째 에피소드 썸네일
     const repThumb = seriesCovers[series] || eps.find(e => e.thumb)?.thumb || '';
@@ -1484,12 +1494,6 @@ function openSeriesDetail(series) {
     <div class="ep-list-wrap">
       <div class="ep-list-header">
         <span>에피소드 목록</span>
-        <select id="ep-sort-select" onchange="resortEpList('${series}')"
-          style="font-family:inherit;font-size:12px;font-weight:500;color:var(--gray-600);background:none;border:1px solid var(--gray-200);border-radius:100px;padding:3px 10px;cursor:pointer;outline:none;">
-          <option value="ep">EP 번호순</option>
-          <option value="upload">업로드순</option>
-          <option value="ep_desc">EP 역순</option>
-        </select>
       </div>
       <div id="ep-list-inner">${buildEpListHtml(eps)}</div>
     </div>
