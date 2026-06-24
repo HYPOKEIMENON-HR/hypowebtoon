@@ -1452,6 +1452,7 @@ function buildEpListHtml(eps) {
 
 let currentSeriesKey = '';
 let _navigatingHistory = false;
+let _viewerDepth = 0;
 
 function resortEpList(series) {
   const sortVal = document.getElementById('ep-sort-select')?.value || 'ep';
@@ -1929,7 +1930,7 @@ function openViewer(id) {
 
   document.getElementById('viewer-overlay').classList.add('open');
   document.getElementById('viewer-overlay').scrollTop = 0;
-  if (!_navigatingHistory) history.pushState({page: 'viewer', id, series: w.series}, '');
+  if (!_navigatingHistory) { _viewerDepth++; history.pushState({page: 'viewer', id, series: w.series}, ''); }
 }
 
 function closeViewer() {
@@ -1937,7 +1938,9 @@ function closeViewer() {
 }
 
 function backToSeries() {
-  history.back();
+  const depth = _viewerDepth;
+  _viewerDepth = 0;
+  history.go(depth > 0 ? -depth : -1);
 }
 
 
@@ -1948,9 +1951,11 @@ window.addEventListener('popstate', function(e) {
   const state = e.state;
   _navigatingHistory = true;
   if (!state || state.page === 'home') {
+    _viewerDepth = 0;
     document.getElementById('viewer-overlay').classList.remove('open');
     document.getElementById('series-overlay').classList.remove('open');
   } else if (state.page === 'series') {
+    _viewerDepth = 0;
     document.getElementById('viewer-overlay').classList.remove('open');
     if (state.series) openSeriesDetail(state.series);
   } else if (state.page === 'viewer') {
